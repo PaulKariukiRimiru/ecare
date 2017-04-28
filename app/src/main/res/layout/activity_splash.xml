@@ -1,0 +1,22 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.mike.ecareapp.Activities.SplashActivity">
+
+
+<ImageView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:src="@drawable/hospital3"
+    android:scaleType="centerCrop"/>
+
+    <android.support.v7.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Wecome to ecare"
+        android:gravity="center_horizontal"
+        android:textSize="25sp"
+        android:layout_gravity="top"/>
+</FrameLayout>
