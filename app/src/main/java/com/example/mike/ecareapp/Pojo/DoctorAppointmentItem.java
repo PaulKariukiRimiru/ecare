@@ -1,21 +1,64 @@
 package com.example.mike.ecareapp.Pojo;
 
 /**
- * Created by Mike on 4/28/2017.
+ * Created by Mike on 5/3/2017.
  */
 
-public class Appiontment {
+public class DoctorAppointmentItem implements MainObject {
     String appoint_id;
     String doc_id;
     String pat_id;
     String hospital;
-    String date;
-    String time;
+    String day;
+    String month;
+    String year;
+    String hour;
+    String minute;
     String treatment;
     String status;
 
     public String getStatus() {
         return status;
+    }
+
+    public String getDay() {
+        return day;
+    }
+
+    public void setDay(String day) {
+        this.day = day;
+    }
+
+    public String getMonth() {
+        return month;
+    }
+
+    public void setMonth(String month) {
+        this.month = month;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    public String getHour() {
+        return hour;
+    }
+
+    public void setHour(String hour) {
+        this.hour = hour;
+    }
+
+    public String getMinute() {
+        return minute;
+    }
+
+    public void setMinute(String minute) {
+        this.minute = minute;
     }
 
     public void setStatus(String status) {
@@ -52,22 +95,6 @@ public class Appiontment {
 
     public void setHospital(String hospital) {
         this.hospital = hospital;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
     }
 
     public String getTreatment() {

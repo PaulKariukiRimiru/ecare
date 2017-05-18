@@ -7,12 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.example.mike.ecareapp.Pojo.Appiontment;
-import com.example.mike.ecareapp.Pojo.Doctor;
-import com.example.mike.ecareapp.Pojo.Patient;
+import com.example.mike.ecareapp.Pojo.AppiontmentItem;
+import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
+import com.example.mike.ecareapp.Pojo.DoctorItem;
+import com.example.mike.ecareapp.Pojo.PatientItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -25,7 +25,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 5;
 
     // Database Name
     private static final String DATABASE_NAME = "ecare";
@@ -55,8 +55,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_DOC_SHEDULE_ID ="shed_doc_id";
     private static final String KEY_PAT_SHEDULE_ID = "shed_pat_id";
     private static final String KEY_SCHEDULE_HOSPITAL = "shed_hospital";
-    private static final String KEY_SCHEDULE_DATE = "date";
-    private static final String KEY_SCHEDULE_TIME = "time";
+    private static final String KEY_DAY = "day";
+    private static final String KEY_MONTH = "month";
+    private static final String KEY_YEAR = "year";
+    private static final String KEY_HOUR = "hour";
+    private static final String KEY_MINUTE = "minute";
+
     private static final String KEY_SCHEDULE_TREATMENT = "treatment";
     private static final String KEY_SHEDULE_STATUS = "status";
 
@@ -80,8 +84,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 +KEY_DOC_HOSPITAL + " TEXT,"+KEY_DOC_SPECIALTY + " TEXT" + ")";
         String CREATE_APPOINTMENTS_TABLE = "CREATE TABLE " + TABLE_SHCEDULE+ "("
                 + KEY_SCHEDULE_ID + " INTEGER PRIMARY KEY," + KEY_DOC_SHEDULE_ID + " TEXT,"
-                + KEY_PAT_SHEDULE_ID + " TEXT UNIQUE," + KEY_SCHEDULE_HOSPITAL + " TEXT,"
-                +KEY_SCHEDULE_DATE+ " TEXT,"+KEY_SCHEDULE_TIME + " TEXT,"+KEY_SHEDULE_STATUS + " TEXT,"
+                + KEY_PAT_SHEDULE_ID + " TEXT," + KEY_SCHEDULE_HOSPITAL + " TEXT,"
+                +KEY_SHEDULE_STATUS + " TEXT,"+KEY_DAY + " TEXT,"+KEY_MONTH + " TEXT,"
+                +KEY_YEAR + " TEXT,"+KEY_HOUR + " TEXT,"+KEY_MINUTE + " TEXT,"
                 +KEY_SCHEDULE_TREATMENT+" TEXT" + ")";
 
 
@@ -107,48 +112,51 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     /*** Storing user details in database
      * */
 
-    public void addPatient(Patient patient) {
+    public void addPatient(PatientItem patientItem) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_NAME, patient.getName()); // Name
-        values.put(KEY_EMAIL, patient.getEmail()); // Email
-        values.put(KEY_PASSWORD, patient.getPassword());
-        values.put(KEY_LOCATION, patient.getLocation());
+        values.put(KEY_NAME, patientItem.getName()); // Name
+        values.put(KEY_EMAIL, patientItem.getEmail()); // Email
+        values.put(KEY_PASSWORD, patientItem.getPassword());
+        values.put(KEY_LOCATION, patientItem.getLocation());
 
         // Inserting Row
         long id = db.insert(TABLE_PATIENT, null, values);
         db.close(); // Closing database connection
 
-        Log.d(TAG, "New patient inserted into sqlite: " + id);
+        Log.d(TAG, "New patientitem inserted into sqlite: " + id);
     }
 
-    public void addDoctor(Doctor doctor) {
+    public void addDoctor(DoctorItem doctorItem) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_DOC_NAME, doctor.getName()); // Name
-        values.put(KEY_DOC_EMAIL, doctor.getEmail()); // Email
-        values.put(KEY_DOC_PASSWORD, doctor.getPassword());
-        values.put(KEY_DOC_HOSPITAL, doctor.getHospital());
-        values.put(KEY_DOC_SPECIALTY, doctor.getSpecialty());
+        values.put(KEY_DOC_NAME, doctorItem.getName()); // Name
+        values.put(KEY_DOC_EMAIL, doctorItem.getEmail()); // Email
+        values.put(KEY_DOC_PASSWORD, doctorItem.getPassword());
+        values.put(KEY_DOC_HOSPITAL, doctorItem.getHospital());
+        values.put(KEY_DOC_SPECIALTY, doctorItem.getSpecialty());
 
         // Inserting Row
         long id = db.insert(TABLE_DOCTOR, null, values);
         db.close(); // Closing database connection
 
-        Log.d(TAG, "New doctor inserted into sqlite: " + id);
+        Log.d(TAG, "New doctorItem inserted into sqlite: " + id);
     }
 
-    public void addAppointment(Appiontment appiontment) {
+    public long addAppointment(AppiontmentItem appiontment) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(KEY_DOC_SHEDULE_ID, appiontment.getDoc_id()); // Name
         values.put(KEY_PAT_SHEDULE_ID, appiontment.getPat_id()); // Email
         values.put(KEY_SCHEDULE_HOSPITAL, appiontment.getHospital());
-        values.put(KEY_SCHEDULE_DATE, appiontment.getDate());
-        values.put(KEY_SCHEDULE_TIME, appiontment.getTime());
+        values.put(KEY_DAY, appiontment.getDay());
+        values.put(KEY_MONTH, appiontment.getMonth());
+        values.put(KEY_YEAR, appiontment.getYear());
+        values.put(KEY_HOUR, appiontment.getHour());
+        values.put(KEY_MINUTE, appiontment.getMinute());
         values.put(KEY_SCHEDULE_TREATMENT, appiontment.getTreatment());
         values.put(KEY_SHEDULE_STATUS, appiontment.getStatus());
 
@@ -157,6 +165,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close(); // Closing database connection
 
         Log.d(TAG, "New appointment inserted into sqlite: " + id);
+        return id;
     }
 
 
@@ -164,83 +173,112 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * Getting user data from database
      * */
 
-    public List<Patient> getAllPatients() {
-        List<Patient> patientList = new ArrayList<>();
+    public List<PatientItem> getAllPatients() {
+        List<PatientItem> patientItemList = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_PATIENT;
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
         // Move to first row
+        if (cursor.getCount() != 0){
         cursor.moveToFirst();
-        if (cursor.getCount() > 0) {
-            Patient patient = new Patient();
-            patient.setPat_id(String.valueOf(cursor.getInt(0)));
-            patient.setName(cursor.getString(1));
-            patient.setEmail(cursor.getString(2));
-            patient.setPassword(cursor.getString(3));
-            patient.setLocation(cursor.getString(4));
-            patientList.add(patient);
-        }
+        do{
+            PatientItem patientItem = new PatientItem();
+            patientItem.setPat_id(String.valueOf(cursor.getInt(0)));
+            patientItem.setName(cursor.getString(1));
+            patientItem.setEmail(cursor.getString(2));
+            patientItem.setPassword(cursor.getString(3));
+            patientItem.setLocation(cursor.getString(4));
+            patientItemList.add(patientItem);
+        }while (cursor.moveToNext());
+
         cursor.close();
         db.close();
         // return user
-        Log.d(TAG, "Fetching patient from Sqlite: " + patientList.get(1).getName());
+        Log.d(TAG, "Fetching patients from Sqlite: " + patientItemList.size());
 
-        return patientList;
+        return patientItemList;
+        }
+        else {
+            Log.d(TAG, "No Patient items");
+            return patientItemList;
+        }
     }
 
-    public List<Doctor> getAllDoctors() {
-        List<Doctor> doctorsList = new ArrayList<>();
+    public List<DoctorItem> getAllDoctors() {
+        List<DoctorItem> doctorsList = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_DOCTOR;
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
         // Move to first row
-        cursor.moveToFirst();
-        if (cursor.getCount() > 0) {
-            Doctor doctor = new Doctor();
-            doctor.setDoc_id(String.valueOf(cursor.getInt(0)));
-            doctor.setName(cursor.getString(1));
-            doctor.setEmail(cursor.getString(2));
-            doctor.setPassword(cursor.getString(3));
-            doctor.setHospital(cursor.getString(4));
-            doctor.setSpecialty(cursor.getString(5));
-            doctorsList.add(doctor);
-        }
-        cursor.close();
-        db.close();
-        // return user
-        Log.d(TAG, "Fetching patient from Sqlite: " + doctorsList.get(1).getName());
+        if (cursor.getCount() != 0){
+            cursor.moveToFirst();
+            do{
+            DoctorItem doctorItem = new DoctorItem();
+            doctorItem.setDoc_id(String.valueOf(cursor.getInt(0)));
+            doctorItem.setName(cursor.getString(1));
+            doctorItem.setEmail(cursor.getString(2));
+            doctorItem.setPassword(cursor.getString(3));
+            doctorItem.setHospital(cursor.getString(4));
+            doctorItem.setSpecialty(cursor.getString(5));
+            doctorsList.add(doctorItem);
+            }while (cursor.moveToNext());
 
-        return doctorsList;
+            cursor.close();
+            db.close();
+            // return user
+            Log.d(TAG, "Fetching doctors from Sqlite: " + doctorsList.size());
+
+            return doctorsList;
+        }
+        else {
+            Log.d(TAG, "No doctors items");
+            return doctorsList;
+        }
     }
 
-    public List<Appiontment> getAllAppointment() {
-        List<Appiontment> appiontmentsList = new ArrayList<>();
+    public List<AppiontmentItem> getAllAppointment() {
+        List<AppiontmentItem> appiontmentsList = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_SHCEDULE;
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
-        // Move to first row
-        cursor.moveToFirst();
-        if (cursor.getCount() > 0) {
-            Appiontment appiontment = new Appiontment();
-            appiontment.setAppoint_id(String.valueOf(cursor.getInt(0)));
-            appiontment.setDoc_id(cursor.getString(1));
-            appiontment.setPat_id(cursor.getString(2));
-            appiontment.setHospital(cursor.getString(3));
-            appiontment.setDate(cursor.getString(4));
-            appiontment.setTime(cursor.getString(5));
-            appiontment.setStatus(cursor.getString(6));
-            appiontment.setTreatment(cursor.getString(7));
-            appiontmentsList.add(appiontment);
-        }
-        cursor.close();
-        db.close();
-        // return user
-        Log.d(TAG, "Fetching patient from Sqlite: " + appiontmentsList.get(1).getTreatment());
 
-        return appiontmentsList;
+        // Move to first row
+        if (cursor.getCount() != 0){
+            cursor.moveToFirst();
+            do{
+                prepareList(appiontmentsList, cursor);
+            }while (cursor.moveToNext());
+
+            cursor.close();
+            db.close();
+            // return user
+            Log.d(TAG, "Fetching appointments from Sqlite: " + appiontmentsList.size());
+
+            return appiontmentsList;
+        }
+        else {
+            Log.d(TAG, "No appointment items");
+            return appiontmentsList;
+        }
+    }
+
+    private void prepareList(List<AppiontmentItem> appiontmentsList, Cursor cursor) {
+        AppiontmentItem appiontment = new AppiontmentItem();
+        appiontment.setAppoint_id(String.valueOf(cursor.getInt(0)));
+        appiontment.setDoc_id(cursor.getString(1));
+        appiontment.setPat_id(cursor.getString(2));
+        appiontment.setHospital(cursor.getString(3));
+        appiontment.setStatus(cursor.getString(4));
+        appiontment.setDay(cursor.getString(5));
+        appiontment.setMonth(cursor.getString(6));
+        appiontment.setYear(cursor.getString(7));
+        appiontment.setHour(cursor.getString(8));
+        appiontment.setMinute(cursor.getString(9));
+        appiontment.setTreatment(cursor.getString(10));
+        appiontmentsList.add(appiontment);
     }
 
 
@@ -248,17 +286,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * Deleting data from database
      */
 
-    public Integer deletePatient (Patient patient){
+    public Integer deletePatient (PatientItem patientItem){
         SQLiteDatabase database = this.getWritableDatabase();
-            return database.delete(TABLE_PATIENT,KEY_ID+" = ?", new String[]{patient.getPat_id()});
+            return database.delete(TABLE_PATIENT,KEY_ID+" = ?", new String[]{patientItem.getPat_id()});
     }
 
-    public Integer deleteDoctor (Doctor patient){
+    public Integer deleteDoctor (DoctorItem patient){
         SQLiteDatabase database = this.getWritableDatabase();
         return database.delete(TABLE_DOCTOR,KEY_DOC_ID+" = ?", new String[]{patient.getDoc_id()});
     }
 
-    public Integer deleteAppointment (Appiontment patient){
+    public Integer deleteAppointment (AppiontmentItem patient){
         SQLiteDatabase database = this.getWritableDatabase();
         return database.delete(TABLE_SHCEDULE,KEY_SCHEDULE_ID+" = ?", new String[]{patient.getAppoint_id()});
     }
@@ -267,19 +305,193 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * Modify a single object
      */
 
-    public void modifyPatient(Patient patient){
-        deletePatient(patient);
-        addPatient(patient);
+    public void modifyPatient(PatientItem patientItem){
+        deletePatient(patientItem);
+        addPatient(patientItem);
     }
 
-    public void modifyDoctor(Doctor doctor){
-        deleteDoctor(doctor);
-        addDoctor(doctor);
+    public void modifyDoctor(DoctorItem doctorItem){
+        deleteDoctor(doctorItem);
+        addDoctor(doctorItem);
     }
 
-    public void modifyAppointment(Appiontment appiontment){
+    public void modifyAppointment(AppiontmentItem appiontment){
         deleteAppointment(appiontment);
         addAppointment(appiontment);
     }
 
+    /**
+     * get single object
+     */
+
+    public DoctorItem getDoctorItem(String id){
+        String selectQuery = "SELECT  * FROM " + TABLE_DOCTOR + " WHERE "+ KEY_DOC_ID + " = " + Integer.parseInt(id);
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        cursor.moveToFirst();
+        DoctorItem doctorItem = new DoctorItem();
+        doctorItem.setDoc_id(String.valueOf(cursor.getInt(0)));
+        doctorItem.setName(cursor.getString(1));
+        doctorItem.setEmail(cursor.getString(2));
+        doctorItem.setPassword(cursor.getString(3));
+        doctorItem.setHospital(cursor.getString(4));
+        doctorItem.setSpecialty(cursor.getString(5));
+        Log.d(TAG, "Fetching doctor from Sqlite: " + doctorItem.getName());
+        return doctorItem;
+    }
+
+    public PatientItem getPatient(String id){
+        String selectQuery = "SELECT  * FROM " + TABLE_PATIENT + " WHERE "+ KEY_ID + " = " + Integer.parseInt(id);
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        if (cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            PatientItem patientItem = new PatientItem();
+            patientItem.setPat_id(String.valueOf(cursor.getInt(0)));
+            patientItem.setName(cursor.getString(1));
+            patientItem.setEmail(cursor.getString(2));
+            patientItem.setPassword(cursor.getString(3));
+            patientItem.setLocation(cursor.getString(4));
+
+            Log.d(TAG, "Fetching patient from Sqlite: " + patientItem.getName());
+            return patientItem;
+        }
+        Log.d(TAG, "No patients");
+        return new PatientItem();
+    }
+
+   /* public List<AppiontmentItem> getPatientAppointmets(String doc_id, String pat_id){
+        String selectQuery = "SELECT  * FROM " + TABLE_SHCEDULE + " WHERE "+ KEY_DOC_SHEDULE_ID + " = " + doc_id;
+        List<AppiontmentItem> appiontmentItemList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        if (cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            do {
+                if (cursor.getString(2).contentEquals(pat_id)){
+                    AppiontmentItem appiontment = new AppiontmentItem();
+                    appiontment.setAppoint_id(String.valueOf(cursor.getInt(0)));
+                    appiontment.setDoc_id(cursor.getString(1));
+                    appiontment.setPat_id(cursor.getString(2));
+                    appiontment.setHospital(cursor.getString(3));
+                    appiontment.setStatus(cursor.getString(4));
+                    appiontment.setDay(cursor.getString(5));
+                    appiontment.setMonth(cursor.getString(6));
+                    appiontment.setYear(cursor.getString(7));
+                    appiontment.setHour(cursor.getString(8));
+                    appiontment.setMinute(cursor.getString(9));
+                    appiontment.setTreatment(cursor.getString(10));
+                    appiontmentItemList.add(appiontment);
+                }
+            }while (cursor.moveToNext());
+            return appiontmentItemList;
+        }
+        return appiontmentItemList;
+    }*/
+
+    public List<AppiontmentItem> getPatientAppointmets(String doc_id){
+        String selectQuery = "SELECT  * FROM " + TABLE_SHCEDULE + " WHERE "+ KEY_DOC_SHEDULE_ID + " = " + doc_id;
+        List<AppiontmentItem> appiontmentItemList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        if (cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            do {
+                AppiontmentItem appiontment = new AppiontmentItem();
+                appiontment.setAppoint_id(String.valueOf(cursor.getInt(0)));
+                appiontment.setDoc_id(cursor.getString(1));
+                appiontment.setPat_id(cursor.getString(2));
+                appiontment.setHospital(cursor.getString(3));
+                appiontment.setStatus(cursor.getString(4));
+                appiontment.setDay(cursor.getString(5));
+                appiontment.setMonth(cursor.getString(6));
+                appiontment.setYear(cursor.getString(7));
+                appiontment.setHour(cursor.getString(8));
+                appiontment.setMinute(cursor.getString(9));
+                appiontment.setTreatment(cursor.getString(10));
+                appiontmentItemList.add(appiontment);
+            }while (cursor.moveToNext());
+            return appiontmentItemList;
+        }
+        return appiontmentItemList;
+    }
+
+    public List<DoctorAppointmentItem> getDoctorAppointment(String doc_id){
+        String selectQuery = "SELECT  * FROM " + TABLE_SHCEDULE + " WHERE "+ KEY_DOC_SHEDULE_ID + " = " + doc_id;
+        List<DoctorAppointmentItem> appiontmentItemList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        if (cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            do {
+                DoctorAppointmentItem appiontment = new DoctorAppointmentItem();
+                appiontment.setAppoint_id(String.valueOf(cursor.getInt(0)));
+                appiontment.setDoc_id(cursor.getString(1));
+                appiontment.setPat_id(cursor.getString(2));
+                appiontment.setHospital(cursor.getString(3));
+                appiontment.setStatus(cursor.getString(4));
+                appiontment.setDay(cursor.getString(5));
+                appiontment.setMonth(cursor.getString(6));
+                appiontment.setYear(cursor.getString(7));
+                appiontment.setHour(cursor.getString(8));
+                appiontment.setMinute(cursor.getString(9));
+                appiontment.setTreatment(cursor.getString(10));
+                appiontmentItemList.add(appiontment);
+            }while (cursor.moveToNext());
+            return appiontmentItemList;
+        }
+        return appiontmentItemList;
+    }
+
+    public AppiontmentItem getAppointment(String appoint_id){
+        String selectQuery = "SELECT  * FROM " + TABLE_SHCEDULE + " WHERE "+ KEY_SCHEDULE_ID + " = " + Integer.parseInt(appoint_id);
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        AppiontmentItem appiontment = new AppiontmentItem();
+        if (cursor.getCount() != 0) {
+            cursor.moveToFirst();
+                appiontment.setAppoint_id(String.valueOf(cursor.getInt(0)));
+                appiontment.setDoc_id(cursor.getString(1));
+                appiontment.setPat_id(cursor.getString(2));
+                appiontment.setHospital(cursor.getString(3));
+                appiontment.setStatus(cursor.getString(4));
+                appiontment.setDay(cursor.getString(5));
+                appiontment.setMonth(cursor.getString(6));
+                appiontment.setYear(cursor.getString(7));
+                appiontment.setHour(cursor.getString(8));
+                appiontment.setMinute(cursor.getString(9));
+                appiontment.setTreatment(cursor.getString(10));
+            return appiontment;
+        }
+        return appiontment;
+    }
+
+    public List<AppiontmentItem> getPatientAppointment(String pat_id){
+        String selectQuery = "SELECT  * FROM " + TABLE_SHCEDULE + " WHERE "+ KEY_PAT_SHEDULE_ID + " = " + pat_id;
+        List<AppiontmentItem> appiontmentItemList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        if (cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            do {
+                AppiontmentItem appiontment = new AppiontmentItem();
+                appiontment.setAppoint_id(String.valueOf(cursor.getInt(0)));
+                appiontment.setDoc_id(cursor.getString(1));
+                appiontment.setPat_id(cursor.getString(2));
+                appiontment.setHospital(cursor.getString(3));
+                appiontment.setStatus(cursor.getString(4));
+                appiontment.setDay(cursor.getString(5));
+                appiontment.setMonth(cursor.getString(6));
+                appiontment.setYear(cursor.getString(7));
+                appiontment.setHour(cursor.getString(8));
+                appiontment.setMinute(cursor.getString(9));
+                appiontment.setTreatment(cursor.getString(10));
+                appiontmentItemList.add(appiontment);
+            }while (cursor.moveToNext());
+            Log.d(TAG, "Fetching patient appointments from Sqlite: " + appiontmentItemList.size());
+            return appiontmentItemList;
+        }
+        Log.d(TAG, "No Patient appointments");
+        return appiontmentItemList;
+    }
 }

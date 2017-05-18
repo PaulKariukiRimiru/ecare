@@ -18,8 +18,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:src="@drawable/n"
-                android:scaleType="centerCrop"/>
+                android:scaleType="centerCrop"
+                />
 
+            <android.support.v7.widget.AppCompatSpinner
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="46dp"
+                android:layout_marginRight="46dp"
+                android:layout_marginTop="8dp"
+                android:id="@+id/spinnerHospital"
+                android:spinnerMode="dialog"
+                android:prompt="@string/hospital_prompt"
+                android:entries="@array/hospital"
+                />
+            <android.support.v7.widget.AppCompatSpinner
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="46dp"
+                android:layout_marginRight="46dp"
+                android:layout_marginTop="8dp"
+                android:id="@+id/spinnerSpecialty"
+                android:spinnerMode="dialog"
+                android:prompt="@string/specialty_prompt"
+                android:entries="@array/specialty"
+                />
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -61,7 +84,6 @@
                     android:textSize="16dp"
                     android:hint="Email"
                     android:layout_marginLeft="46dp"
-                    android:textColorHint="@color/colorhint"
                     android:textColor="#000000"
                     android:maxLength="12"
                     android:background="#0000"
@@ -72,22 +94,6 @@
                     android:id="@+id/edEmail"
                     />
             </android.support.design.widget.TextInputLayout>
-            <View
-                android:layout_width="match_parent"
-                android:layout_marginLeft="56dp"
-                android:layout_marginRight="56dp"
-                android:layout_height="1dp"
-                android:background="@color/colorPrimary"/>
-            <android.support.v7.widget.AppCompatSpinner
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:id="@+id/location_spinner"
-                android:spinnerMode="dropdown"
-                android:prompt="@string/hospital_prompt"
-                android:entries="@array/location"
-                android:layout_marginLeft="46dp"
-                android:layout_marginRight="56dp"
-                />
             <View
                 android:layout_width="match_parent"
                 android:layout_marginLeft="56dp"
@@ -119,7 +125,7 @@
             </android.support.design.widget.TextInputLayout>
             <View
                 android:layout_width="match_parent"
-                android:layout_marginLeft="56dp"
+                android:layout_marginLeft="46dp"
                 android:layout_marginRight="56dp"
                 android:layout_height="1dp"
                 android:background="@color/colorPrimary"/>

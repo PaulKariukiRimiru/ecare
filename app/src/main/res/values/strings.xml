@@ -9,6 +9,38 @@
     <string name="title_activity_account">Account</string>
 
     <string name="title_activity_splash">SplashActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="hospital_prompt">Choose a hospital</string>
+    <string name="specialty_prompt">Choose a Specialty</string>
+    <string name="hospitalorder_prompt">Select hospital</string>
+    <string name="specialtyorder_prompt">Select specialty</string>
+
+    <string-array name="hospital">
+        <item>Nairobi Hospital</item>
+        <item>Kenyatta Hospital</item>
+        <item>Outspan Hospital</item>
+    </string-array>
+
+    <string-array name="specialty">
+        <item>Specialty one</item>
+        <item>Specialty two</item>
+        <item>Specialty three</item>
+        <item>Specialty four</item>
+    </string-array>
+
+    <string-array name="service">
+        <item>service one</item>
+        <item>service two</item>
+        <item>service three</item>
+        <item>service four</item>
+    </string-array>
+    <string-array name="location">
+        <item>Choose a location</item>
+        <item>Nairobi</item>
+        <item>Mombasa</item>
+        <item>Nyeri</item>
+        <item>Kisumu</item>
+        <item>Eldoret</item>
+        <item>Nakuru</item>
+    </string-array>
 </resources>

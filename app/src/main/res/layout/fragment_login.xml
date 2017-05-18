@@ -19,6 +19,7 @@
         android:layout_height="250dp"
         app:srcCompat="@drawable/patient"
         android:id="@+id/imgLogin"
+        android:layout_marginTop="24dp"
         />
 
     <android.support.design.widget.TextInputLayout

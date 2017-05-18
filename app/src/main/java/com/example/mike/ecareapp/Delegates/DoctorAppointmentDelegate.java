@@ -1,10 +1,7 @@
 package com.example.mike.ecareapp.Delegates;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,8 +11,10 @@ import android.widget.LinearLayout;
 
 import com.andexert.library.RippleView;
 import com.example.mike.ecareapp.Database.DatabaseHandler;
+import com.example.mike.ecareapp.Fragments.DoctorAppoitmentSchedule;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
+import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
 import com.example.mike.ecareapp.Pojo.DoctorItem;
 import com.example.mike.ecareapp.Pojo.MainObject;
 import com.example.mike.ecareapp.R;
@@ -24,16 +23,16 @@ import com.hannesdorfmann.adapterdelegates3.AdapterDelegate;
 import java.util.List;
 
 /**
- * Created by Mike on 4/27/2017.
+ * Created by Mike on 5/3/2017.
  */
 
-public class AppointmentDelegate extends AdapterDelegate<List<MainObject>> {
+public class DoctorAppointmentDelegate extends AdapterDelegate<List<MainObject>> {
 
     private final Context context;
     private final LayoutInflater inflater;
     private final NavigationInterface navigationInterface;
 
-    public AppointmentDelegate(Context context, NavigationInterface navigationInterface){
+    public DoctorAppointmentDelegate(Context context, NavigationInterface navigationInterface){
         this.context = context;
         inflater = LayoutInflater.from(context);
         this.navigationInterface = navigationInterface;
@@ -41,26 +40,26 @@ public class AppointmentDelegate extends AdapterDelegate<List<MainObject>> {
 
     @Override
     protected boolean isForViewType(@NonNull List<MainObject> items, int position) {
-        return items.get(position) instanceof AppiontmentItem;
+        return items.get(position) instanceof DoctorAppointmentItem;
     }
 
     @NonNull
     @Override
     protected RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent) {
-        return new AppointmentDelegateViewHolder(inflater.inflate(R.layout.appointmentitem,parent,false));
+        return new DoctorAppointmentDelegateViewHolder(inflater.inflate(R.layout.appointmentitem,parent,false));
     }
 
     @Override
     protected void onBindViewHolder(@NonNull List<MainObject> items, int position, @NonNull RecyclerView.ViewHolder holder, @NonNull List<Object> payloads) {
-        final AppiontmentItem appointmentItem = (AppiontmentItem) items.get(position);
-        AppointmentDelegateViewHolder viewHolder = (AppointmentDelegateViewHolder) holder;
+        final DoctorAppointmentItem appointmentItem = (DoctorAppointmentItem) items.get(position);
+        DoctorAppointmentDelegate.DoctorAppointmentDelegateViewHolder viewHolder = (DoctorAppointmentDelegate.DoctorAppointmentDelegateViewHolder) holder;
 
-        final DatabaseHandler handler = new DatabaseHandler(context);
-        DoctorItem doctorItem = handler.getDoctorItem(appointmentItem.getDoc_id());
-        viewHolder.doctorName.setText(doctorItem.getName());
-        viewHolder.hospitalName.setText(appointmentItem.getHospital());
+        DatabaseHandler handler = new DatabaseHandler(context);
+        viewHolder.patientName.setText(handler.getPatient(appointmentItem.getPat_id()).getName());
+        viewHolder.email.setText(handler.getPatient(appointmentItem.getPat_id()).getEmail());
         viewHolder.date.setText("On "+ appointmentItem.getDay()+"/"+appointmentItem.getMonth()+"/"+appointmentItem.getYear()+ " At "+ appointmentItem.getHour()+":"+appointmentItem.getMinute());
         viewHolder.treatment.setText(appointmentItem.getTreatment());
+
 
         viewHolder.rippleView.setCentered(true);
         viewHolder.rippleView.setRippleDuration(150);
@@ -83,25 +82,27 @@ public class AppointmentDelegate extends AdapterDelegate<List<MainObject>> {
         viewHolder.rippleView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
             @Override
             public void onComplete(RippleView rippleView) {
-
+                DoctorAppoitmentSchedule doctorAppoitmentSchedule = DoctorAppoitmentSchedule.newInstance(appointmentItem.getAppoint_id(),"");
+                navigationInterface.fragmentNavigation(doctorAppoitmentSchedule);
             }
         });
     }
 
-    private class AppointmentDelegateViewHolder extends RecyclerView.ViewHolder{
+    private class DoctorAppointmentDelegateViewHolder extends RecyclerView.ViewHolder{
         LinearLayout statusShow, statusIndicator;
-        AppCompatTextView doctorName, hospitalName, date, treatment, status;
+        AppCompatTextView patientName, email, date, treatment, status;
         RippleView rippleView;
-        public AppointmentDelegateViewHolder(View itemView) {
+        public DoctorAppointmentDelegateViewHolder(View itemView) {
             super(itemView);
             statusShow = (LinearLayout) itemView.findViewById(R.id.statusShow);
             statusIndicator = (LinearLayout) itemView.findViewById(R.id.statusIndicator);
 
-            doctorName = (AppCompatTextView) itemView.findViewById(R.id.tvdoctor);
-            hospitalName = (AppCompatTextView) itemView.findViewById(R.id.tvhospital);
+            patientName = (AppCompatTextView) itemView.findViewById(R.id.tvdoctor);
+            email = (AppCompatTextView) itemView.findViewById(R.id.tvhospital);
             date = (AppCompatTextView) itemView.findViewById(R.id.tvdate);
             treatment = (AppCompatTextView) itemView.findViewById(R.id.tvtreatment);
             status = (AppCompatTextView) itemView.findViewById(R.id.tvstatus);
+
             rippleView = (RippleView) itemView.findViewById(R.id.ripAppointment);
         }
     }

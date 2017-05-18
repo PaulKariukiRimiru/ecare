@@ -4,20 +4,19 @@ package com.example.mike.ecareapp.Pojo;
  * Created by Mike on 4/28/2017.
  */
 
-public class Doctor {
-    String doc_id;
+public class PatientItem implements MainObject{
+    String pat_id;
     String name;
-    String hospital;
     String email;
     String password;
-    String specialty;
+    String location;
 
-    public String getDoc_id() {
-        return doc_id;
+    public String getPat_id() {
+        return pat_id;
     }
 
-    public void setDoc_id(String doc_id) {
-        this.doc_id = doc_id;
+    public void setPat_id(String pat_id) {
+        this.pat_id = pat_id;
     }
 
     public String getName() {
@@ -26,14 +25,6 @@ public class Doctor {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getHospital() {
-        return hospital;
-    }
-
-    public void setHospital(String hospital) {
-        this.hospital = hospital;
     }
 
     public String getEmail() {
@@ -52,11 +43,11 @@ public class Doctor {
         this.password = password;
     }
 
-    public String getSpecialty() {
-        return specialty;
+    public String getLocation() {
+        return location;
     }
 
-    public void setSpecialty(String specialty) {
-        this.specialty = specialty;
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

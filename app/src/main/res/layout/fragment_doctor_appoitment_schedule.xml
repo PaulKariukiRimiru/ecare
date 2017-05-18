@@ -30,11 +30,11 @@
         android:textSize="18sp"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/textView14"
+        app:layout_constraintRight_toLeftOf="@+id/tvname"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <TextView
-        android:id="@+id/textView14"
+        android:id="@+id/tvname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Name"
@@ -57,14 +57,14 @@
         app:layout_constraintTop_toBottomOf="@+id/textView13" />
 
     <TextView
-        android:id="@+id/textView16"
+        android:id="@+id/tvHospital"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="0dp"
         android:text="Name"
         android:textSize="16sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/textView15"
-        app:layout_constraintLeft_toLeftOf="@+id/textView14" />
+        app:layout_constraintLeft_toLeftOf="@+id/tvname" />
 
     <TextView
         android:id="@+id/textView17"
@@ -80,13 +80,13 @@
         app:layout_constraintTop_toBottomOf="@+id/textView15" />
 
     <TextView
-        android:id="@+id/textView18"
+        android:id="@+id/tvtreatment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="0dp"
         android:text="name"
         app:layout_constraintBaseline_toBaselineOf="@+id/textView17"
-        app:layout_constraintLeft_toLeftOf="@+id/textView16" />
+        app:layout_constraintLeft_toLeftOf="@+id/tvHospital" />
 
     <TextView
         android:id="@+id/textView19"
@@ -102,13 +102,13 @@
         app:layout_constraintTop_toBottomOf="@+id/textView17" />
 
     <TextView
-        android:id="@+id/textView20"
+        android:id="@+id/tvdate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="0dp"
         android:text="date"
         app:layout_constraintBaseline_toBaselineOf="@+id/textView19"
-        app:layout_constraintLeft_toLeftOf="@+id/textView18" />
+        app:layout_constraintLeft_toLeftOf="@+id/tvtreatment" />
 
     <TextView
         android:id="@+id/textView21"
@@ -124,13 +124,13 @@
         app:layout_constraintTop_toBottomOf="@+id/textView19" />
 
     <TextView
-        android:id="@+id/textView22"
+        android:id="@+id/tvtime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="0dp"
         android:text="Time"
         app:layout_constraintBaseline_toBaselineOf="@+id/textView21"
-        app:layout_constraintLeft_toLeftOf="@+id/textView20" />
+        app:layout_constraintLeft_toLeftOf="@+id/tvdate" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -145,13 +145,14 @@
         app:layout_constraintTop_toBottomOf="@+id/textView21">
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/btnreschedule"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Reschedule" />
+
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/btnconfirm"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

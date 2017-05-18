@@ -6,12 +6,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+
+import com.example.mike.ecareapp.Fragments.DoctorsRegisterFragment;
 import com.example.mike.ecareapp.Fragments.LoginFragment;
 import com.example.mike.ecareapp.Fragments.RegisterFragment;
 import com.example.mike.ecareapp.Fragments.WelcomeFragment;
 import com.example.mike.ecareapp.R;
 
-public class AccountActivity extends AppCompatActivity implements LoginFragment.OnFragmentInteractionListener, RegisterFragment.OnFragmentInteractionListener, WelcomeFragment.OnFragmentInteractionListener{
+public class AccountActivity extends AppCompatActivity implements LoginFragment.OnFragmentInteractionListener, RegisterFragment.OnFragmentInteractionListener, WelcomeFragment.OnFragmentInteractionListener, DoctorsRegisterFragment.OnFragmentInteractionListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

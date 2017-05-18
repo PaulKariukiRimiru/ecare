@@ -27,13 +27,16 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import com.example.mike.ecareapp.Fragments.AppointmentBookingFragment;
 import com.example.mike.ecareapp.Fragments.AppointmentFragment;
+import com.example.mike.ecareapp.Fragments.DoctorAppoitmentSchedule;
 import com.example.mike.ecareapp.Fragments.HomeFragment;
+import com.example.mike.ecareapp.Fragments.RescheduleFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener, AppointmentFragment.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener, AppointmentFragment.OnFragmentInteractionListener, AppointmentBookingFragment.OnFragmentInteractionListener, RescheduleFragment.OnFragmentInteractionListener, DoctorAppoitmentSchedule.OnFragmentInteractionListener{
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -51,21 +54,47 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
      */
     private ViewPager mViewPager;
 
+    String name, id;
+    private long new_range;
+    private int type;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        name = getIntent().getStringExtra("name");
+        id = getIntent().getStringExtra("Id");
+        type = getIntent().getIntExtra("type",0);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
+
         List<Fragment> fragments = new ArrayList<>();
-        fragments.add(HomeFragment.newInstance("",""));
-        fragments.add(AppointmentFragment.newInstance("",""));
+        switch (type) {
+            case 0:
+                fragments.add(HomeFragment.newInstance(0, id));
+                fragments.add(AppointmentFragment.newInstance(0, id));
 
+                String [] titles = {"Home", "Appointments"};
+                int [] images = {R.drawable.ic_home, R.drawable.ic_appointments};
 
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), fragments, this);
+                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), fragments,titles, images,this);
+
+                break;
+            case 1:
+                fragments.add(HomeFragment.newInstance(1, id));
+                fragments.add(AppointmentFragment.newInstance(1, id));
+
+                String [] titles2 = {"Patients","Appointments"};
+                int [] images2 = {R.drawable.ic_home,R.drawable.ic_appointments};
+
+                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), fragments,titles2, images2,this);
+                break;
+        }
+
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
@@ -73,15 +102,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
     }
 
@@ -113,6 +133,25 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
     }
 
+    @Override
+    public long getRange() {
+        return new_range;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public void setRange(long id) {
+        new_range = id;
+    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -122,11 +161,16 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
         private final Context context;
         List<Fragment> fragmentList;
+        int [] images;
+        String [] titles;
 
-        public SectionsPagerAdapter(FragmentManager fm, List<Fragment> fragmentList, Context context) {
+        public SectionsPagerAdapter(FragmentManager fm, List<Fragment> fragmentList, String[] titles, int[] images, Context context) {
             super(fm);
             this.fragmentList = fragmentList;
             this.context = context;
+
+            this.titles = titles;
+            this.images = images;
         }
 
         @Override
@@ -142,8 +186,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             return fragmentList.size();
         }
 
-        private String [] titles = {"Home", "Appointments"};
-        private int [] images = {R.drawable.ic_home, R.drawable.ic_appointments};
+
 
         @Override
         public CharSequence getPageTitle(int position) {
@@ -153,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             //Drawable image = VectorDrawableCompat.create(context.getResources(),images[position],null);
             image.setBounds(0, 0, image.getIntrinsicWidth(), image.getIntrinsicHeight());
             // Replace blank spaces with image icon
-            SpannableString sb = new SpannableString("   "+titles[position]);
+            SpannableString sb = new SpannableString("   "+"\n"+titles[position]);
             ImageSpan imageSpan = new ImageSpan(image, ImageSpan.ALIGN_BOTTOM);
             sb.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             return sb;

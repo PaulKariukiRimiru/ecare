@@ -4,84 +4,92 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.example.mike.ecareapp.Database.DatabaseHandler;
+import com.example.mike.ecareapp.Interfaces.TransferInterface;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.R;
 
 import java.util.Calendar;
 
 /**
- * A placeholder fragment containing a simple view.
+ * A simple {@link Fragment} subclass.
+ * Activities that contain this fragment must implement the
+ * {@link RescheduleFragment.OnFragmentInteractionListener} interface
+ * to handle interaction events.
+ * Use the {@link RescheduleFragment#newInstance} factory method to
+ * create an instance of this fragment.
  */
-public class AppointmentBookingFragment extends DialogFragment implements View.OnClickListener {
-
-    private int mYear;
-    private int mMonth;
-    private int mDay;
-    private int mHour;
-    private int mMinute;
-
-    private int nYear;
-    private int nMonth;
-    private int nDay;
-    private int nHour;
-    private int nMinute;
-
-    private String patName;
-    private OnFragmentInteractionListener mListener;
-
-    public AppointmentBookingFragment() {
-    }
-
+public class RescheduleFragment extends DialogFragment implements View.OnClickListener {
+    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private static final String ARG_PARAM3 = "param3";
-    private static final String ARG_PARAM4 = "param4";
-    private static final String ARG_PARAM5 = "param5";
-    // TODO: Rename and change types of parameters
-    private String docId;
-    private String patId;
-    private String docName;
-    private String hospital;
 
-    Spinner services;
+    // TODO: Rename and change types of parameters
+    private String mParam1;
+    private String mParam2;
+
     Button date;
     Button time;
     Button confirm;
 
+    private OnFragmentInteractionListener mListener;
+    private int mYear;
+    private int mMonth;
+    private int mDay;
+    private int nYear;
+    private int nMonth;
+    private int nDay;
+    private int mHour;
+    private int mMinute;
+    private int nHour;
+    private int nMinute;
 
+    public RescheduleFragment() {
+        // Required empty public constructor
+    }
 
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param param1 Parameter 1.
+     * @param param2 Parameter 2.
+     * @return A new instance of fragment RescheduleFragment.
+     */
     // TODO: Rename and change types and number of parameters
-    public static AppointmentBookingFragment newInstance(String docId, String docName, String hospital) {
-        AppointmentBookingFragment fragment = new AppointmentBookingFragment();
+    public static RescheduleFragment newInstance(String param1, String param2) {
+        RescheduleFragment fragment = new RescheduleFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, docId);
-        args.putString(ARG_PARAM2, docName);
-        args.putString(ARG_PARAM3, hospital);
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+    }
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -89,33 +97,11 @@ public class AppointmentBookingFragment extends DialogFragment implements View.O
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         return dialog;
     }
-
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            docId = getArguments().getString(ARG_PARAM1);
-            docName = getArguments().getString(ARG_PARAM2);
-            hospital = getArguments().getString(ARG_PARAM3);
-
-            patId = mListener.getId();
-            patName = mListener.getName();
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_appointment_booking, container, false);
-
-        TextView thospital = (TextView) view.findViewById(R.id.tvHospital);
-        TextView tdoctor = (TextView) view.findViewById(R.id.tvDoctor);
-        TextInputEditText edname = (TextInputEditText) view.findViewById(R.id.editName);
-
-        thospital.setText(hospital);
-        tdoctor.setText(docName);
-        edname.setText(patName);
-
-        services = (Spinner) view.findViewById(R.id.spinnerServices);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_reschedule, container, false);
 
         date = (Button) view.findViewById(R.id.btndate);
         time = (Button) view.findViewById(R.id.btntime);
@@ -125,25 +111,19 @@ public class AppointmentBookingFragment extends DialogFragment implements View.O
         time.setOnClickListener(this);
         confirm.setOnClickListener(this);
 
-        // Get Current Date
-        final Calendar c = Calendar.getInstance();
-        mYear = c.get(Calendar.YEAR);
-        mMonth = c.get(Calendar.MONTH);
-        mDay = c.get(Calendar.DAY_OF_MONTH);
-
-        // Get Current Time
-        final Calendar c2 = Calendar.getInstance();
-        mHour = c2.get(Calendar.HOUR_OF_DAY);
-        mMinute = c2.get(Calendar.MINUTE);
-
         return view;
+    }
+
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
+
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof AppointmentBookingFragment.OnFragmentInteractionListener) {
-            mListener = (AppointmentBookingFragment.OnFragmentInteractionListener) context;
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -198,22 +178,18 @@ public class AppointmentBookingFragment extends DialogFragment implements View.O
 
                 break;
             case R.id.btnconfirm:
-                AppiontmentItem appiontmentItem = new AppiontmentItem();
+                DatabaseHandler handler = new DatabaseHandler(getContext());
+                AppiontmentItem appiontmentItem = handler.getAppointment(mParam1);
                 appiontmentItem.setMinute(String.valueOf(nMinute));
                 appiontmentItem.setHour(String.valueOf(nHour));
                 appiontmentItem.setDay(String.valueOf(nDay));
                 appiontmentItem.setMonth(String.valueOf(nMonth));
                 appiontmentItem.setYear(String.valueOf(nYear));
-                appiontmentItem.setStatus(String.valueOf(0));
-                appiontmentItem.setDoc_id(docId);
-                appiontmentItem.setPat_id(patId);
-                appiontmentItem.setHospital(hospital);
-                appiontmentItem.setTreatment(services.getSelectedItem().toString());
+                appiontmentItem.setStatus(String.valueOf(1));
 
-                DatabaseHandler handler = new DatabaseHandler(getContext());
-                long id = handler.addAppointment(appiontmentItem);
-                mListener.setRange(id);
-                Snackbar.make(v,"Appointment booked \n Wait for confirmation",Snackbar.LENGTH_LONG).show();
+                handler.modifyAppointment(appiontmentItem);
+                Snackbar.make(v,"Appointment Confirmed",Snackbar.LENGTH_LONG).show();
+                dismiss();
                 break;
         }
     }
@@ -230,8 +206,7 @@ public class AppointmentBookingFragment extends DialogFragment implements View.O
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        String getName();
-        String getId();
-        void setRange(long id);
+
     }
+
 }

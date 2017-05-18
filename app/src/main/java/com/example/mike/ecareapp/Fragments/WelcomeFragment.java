@@ -75,7 +75,7 @@ public class WelcomeFragment extends Fragment {
         patient.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Fragment register = LoginFragment.newInstance(R.drawable.patient,"");
+                Fragment register = LoginFragment.newInstance(R.drawable.patient,0);
                 FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
                 transaction1.replace(R.id.fragment,register);
                 transaction1.addToBackStack(null);
@@ -86,7 +86,7 @@ public class WelcomeFragment extends Fragment {
         doctor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Fragment register = LoginFragment.newInstance(R.drawable.doctor,"");
+                Fragment register = LoginFragment.newInstance(R.drawable.doctor,1);
                 FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
                 transaction1.replace(R.id.fragment,register);
                 transaction1.addToBackStack(null);
@@ -99,9 +99,6 @@ public class WelcomeFragment extends Fragment {
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override
