@@ -9,6 +9,7 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.AppCompatButton;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +21,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.mike.ecareapp.Custom.ProcessUser;
 import com.example.mike.ecareapp.Database.DatabaseHandler;
 import com.example.mike.ecareapp.MainActivity;
 import com.example.mike.ecareapp.Pojo.DoctorItem;
+import com.example.mike.ecareapp.Pojo.MainObject;
 import com.example.mike.ecareapp.Pojo.PatientItem;
 import com.example.mike.ecareapp.R;
 
@@ -117,10 +120,15 @@ public class DoctorsRegisterFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                if (name.getText() != null && email.getText() != null && password.getText() != null ){
+                if (validateForm()){
+                    DoctorItem doctorItem = new DoctorItem();
+                    doctorItem.setName(name.getText().toString());
+                    doctorItem.setEmail(email.getText().toString());
+                    doctorItem.setPassword(password.getText().toString());
+                    doctorItem.setHospital(hospital_spinner.getSelectedItem().toString());
+                    doctorItem.setSpecialty(specialty_spinner.getSelectedItem().toString());
 
-
-                    if (registerUser(v)){
+                    if (registerUser(doctorItem)){
                     Fragment login = LoginFragment.newInstance(mParam1,mParam2);
                     FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
                     transaction1.replace(R.id.fragment,login);
@@ -136,51 +144,33 @@ public class DoctorsRegisterFragment extends Fragment {
         return view;
     }
 
-    Boolean status;
-    private boolean setStatus(Boolean val){
-        status = val;
-        return status;
+    private boolean validateForm() {
+        boolean valid = true;
+
+        String emailT = email.getText().toString();
+        if (TextUtils.isEmpty(emailT)) {
+            email.setError("Required.");
+            valid = false;
+        } else {
+            email.setError(null);
+        }
+
+        String passwordT = password.getText().toString();
+        if (TextUtils.isEmpty(passwordT)) {
+            password.setError("Required.");
+            valid = false;
+        } else {
+            password.setError(null);
+        }
+
+        return valid;
     }
 
-    private boolean registerUser(final View view){
-         final String username = name.getText().toString().trim();
-         final String useremail = email.getText().toString().trim();
-         final String userpassword = password.getText().toString().trim();
-         final String userhospital = hospital_spinner.getSelectedItem().toString();
-         final String userspeceialty = specialty_spinner.getSelectedItem().toString();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, REGISTER_URL,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Snackbar.make(view,response,Snackbar.LENGTH_SHORT).show();
-                        setStatus(true);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Snackbar.make(view,error.getMessage(),Snackbar.LENGTH_SHORT).show();
-                        setStatus(false);
-                    }
-                }){
-            @Override
-            protected Map<String,String> getParams(){
-                Map<String,String> params = new HashMap<String, String>();
-                params.put("doc_name",username);
-                params.put("doc_email",useremail);
-                params.put("doc_password", userpassword);
-                params.put("doc_hospital",userhospital);
-                params.put("doc_specialty",userspeceialty);
-                return params;
-            }
 
-        };
-
-        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
-        requestQueue.add(stringRequest);
-
-        return status;
+    private boolean registerUser(MainObject object){
+        ProcessUser processUser = ProcessUser.getNewInstance(getContext(), getActivity());
+        return processUser.createFirebaseUser(object);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

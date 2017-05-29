@@ -3,6 +3,7 @@ package com.example.mike.ecareapp.Fragments;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
@@ -10,10 +11,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatSpinner;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -22,12 +26,23 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mike.ecareapp.Activities.AccountActivity;
+import com.example.mike.ecareapp.Custom.ProcessUser;
 import com.example.mike.ecareapp.Database.DatabaseHandler;
+import com.example.mike.ecareapp.Pojo.MainObject;
 import com.example.mike.ecareapp.Pojo.PatientItem;
 import com.example.mike.ecareapp.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.google.android.gms.internal.zzs.TAG;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,13 +57,19 @@ public class RegisterFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private static final String REGISTER_URL = "https://footballticketing.000webhostapp.com/patient_insert";
 
     // TODO: Rename and change types of parameters
     private int mParam1;
     private int mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference myRef = database.getReference("message");
+
+    //myRef.setValue("Hello, World!");
 
     public RegisterFragment() {
         // Required empty public constructor
@@ -79,9 +100,10 @@ public class RegisterFragment extends Fragment {
             mParam1 = getArguments().getInt(ARG_PARAM1);
             mParam2 = getArguments().getInt(ARG_PARAM2);
         }
+        mAuth = FirebaseAuth.getInstance();
     }
 
-    TextInputEditText name, email, location, password;
+    TextInputEditText name, email, password;
     AppCompatSpinner locationSpinner;
 
     @Override
@@ -93,7 +115,6 @@ public class RegisterFragment extends Fragment {
 
         name = (TextInputEditText) view.findViewById(R.id.edNames);
         email = (TextInputEditText) view.findViewById(R.id.edEmail);
-        location = (TextInputEditText) view.findViewById(R.id.edLocation);
         password = (TextInputEditText) view.findViewById(R.id.edPassword);
         locationSpinner = (AppCompatSpinner) view.findViewById(R.id.location_spinner);
 
@@ -115,8 +136,15 @@ public class RegisterFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                if (name.getText() != null && email.getText() != null && location.getText() != null && password.getText() != null ){
-                    if (registerUser(v)){
+                if (validateForm()){
+
+                    PatientItem patientItem = new PatientItem();
+                    patientItem.setName(name.getText().toString());
+                    patientItem.setEmail(email.getText().toString());
+                    patientItem.setPassword(password.getText().toString());
+                    patientItem.setLocation(locationSpinner.getSelectedItem().toString());
+
+                    if (registerUser(patientItem)){
                         Fragment login = LoginFragment.newInstance(mParam1,mParam2);
                         FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
                         transaction1.replace(R.id.fragment,login);
@@ -126,12 +154,11 @@ public class RegisterFragment extends Fragment {
                     else {
                         Snackbar.make(v,"Try again please",Snackbar.LENGTH_SHORT).show();
                     }
-                }
-
-
+                }else
+                    Snackbar.make(v,"Fill the form and try again",Snackbar.LENGTH_SHORT).show();
 
                 try {
-                    finalize();
+                    super.finalize();
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
                 }
@@ -141,49 +168,37 @@ public class RegisterFragment extends Fragment {
         return view;
     }
 
-    Boolean status1;
-    private boolean setStatus(Boolean val){
-        status1 = val;
-        return status1;
+
+
+
+
+    private boolean validateForm() {
+        boolean valid = true;
+
+        String emailT = email.getText().toString();
+        if (TextUtils.isEmpty(emailT)) {
+            email.setError("Required.");
+            valid = false;
+        } else {
+            email.setError(null);
+        }
+
+        String passwordT = password.getText().toString();
+        if (TextUtils.isEmpty(passwordT)) {
+            password.setError("Required.");
+            valid = false;
+        } else {
+            password.setError(null);
+        }
+
+        return valid;
     }
 
-    private boolean registerUser(final View view){
-        final String username = name.getText().toString().trim();
-        final String useremail = email.getText().toString().trim();
-        final String userpassword = password.getText().toString().trim();
-        final String userlocation = locationSpinner.getSelectedItem().toString();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, REGISTER_URL,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Snackbar.make(view,response,Snackbar.LENGTH_SHORT).show();
-                        setStatus(true);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Snackbar.make(view,error.getMessage(),Snackbar.LENGTH_SHORT).show();
-                        setStatus(false);
-                    }
-                }){
-            @Override
-            protected Map<String,String> getParams(){
-                Map<String,String> params = new HashMap<String, String>();
-                params.put("pat_name",username);
-                params.put("pat_email",useremail);
-                params.put("pat_password", userpassword);
-                params.put("pat_location",userlocation);
-                return params;
-            }
 
-        };
-
-        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
-        requestQueue.add(stringRequest);
-
-        return status1;
+    private boolean registerUser(MainObject object){
+        ProcessUser processUser = ProcessUser.getNewInstance(getContext(), getActivity());
+        return processUser.createFirebaseUser(object);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

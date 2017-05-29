@@ -4,16 +4,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatTextView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -23,11 +26,17 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.mike.ecareapp.Custom.ProcessUser;
 import com.example.mike.ecareapp.Database.DatabaseHandler;
 import com.example.mike.ecareapp.MainActivity;
 import com.example.mike.ecareapp.Pojo.DoctorItem;
 import com.example.mike.ecareapp.Pojo.PatientItem;
 import com.example.mike.ecareapp.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,6 +45,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.android.gms.internal.zzs.TAG;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,6 +71,8 @@ public class LoginFragment extends Fragment {
     private String gname;
     private int gid;
 
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -111,6 +124,8 @@ public class LoginFragment extends Fragment {
 
         AppCompatTextView signup = (AppCompatTextView) view.findViewById(R.id.tvSignUp);
 
+
+
         signup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -135,48 +150,13 @@ public class LoginFragment extends Fragment {
             }
         });
 
+        final ProcessUser processUser = ProcessUser.getNewInstance(getContext(),getActivity());
+
         signin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!email.getText().toString().isEmpty() && !passs.getText().toString().isEmpty()) {
-                    switch (mParam2) {
-                        case 0:
-                            if (email.getText().toString().contentEquals("") || passs.getText().toString().contentEquals("")) {
-                                Snackbar.make(view, "Check your email or password", Snackbar.LENGTH_SHORT).show();
-                            }else {
-                                if (registerUser(view,email.getText().toString(),"https://footballticketing.000webhostapp.com/getPatient")){
-                                    Intent intent = new Intent(getContext(), MainActivity.class);
-                                    intent.putExtra("name",gname);
-                                    intent.putExtra("Id",gid);
-                                    intent.putExtra("type", 1);
-                                    startActivity(intent);
-
-                                    getActivity().finish();
-                                }else {
-                                    Snackbar.make(view, "Something went completely wrong", Snackbar.LENGTH_SHORT).show();
-                                }
-                            }
-
-
-                            break;
-                        case 1:
-                            if (email.getText().toString().contentEquals("") || passs.getText().toString().contentEquals("")) {
-                                Snackbar.make(view, "Check your email or password", Snackbar.LENGTH_SHORT).show();
-                            }else {
-                                if (registerUser(view,email.getText().toString(),"https://footballticketing.000webhostapp.com/getDoctor")){
-                                    Intent intent = new Intent(getContext(), MainActivity.class);
-                                    intent.putExtra("name",gname);
-                                    intent.putExtra("Id",gid);
-                                    intent.putExtra("type", 1);
-                                    startActivity(intent);
-
-                                    getActivity().finish();
-                                }else {
-                                    Snackbar.make(view, "Something went completely wrong", Snackbar.LENGTH_SHORT).show();
-                                }
-                            }
-                            break;
-                    }
+                    processUser.confirmDetails(email.getText().toString(),passs.getText().toString());
                 }else {
                     Snackbar.make(view, "Please ensure that you have written both your email and password", Snackbar.LENGTH_SHORT).show();
                 }
@@ -186,57 +166,7 @@ public class LoginFragment extends Fragment {
         return view;
     }
 
-    Boolean status;
-    private boolean setStatus(Boolean val){
-        status = val;
-        return status;
-    }
 
-    private boolean registerUser(final View view, final String useremail, String REGISTER_URL){
-
-
-        StringRequest stringRequest = new StringRequest(REGISTER_URL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    JSONArray jsonArray = jsonObject.getJSONArray("result");
-                    JSONObject jsonObject1 = jsonArray.getJSONObject(0);
-
-                    String password = jsonObject1.getString("pat_password");
-                    gname = jsonObject1.getString("pat_name");
-                    gid = jsonObject1.getInt("pat_id");
-
-                    if (passs.getText().toString().contentEquals(password)){
-                        setStatus(true);
-                    }else {
-                        setStatus(false);
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        setStatus(false);
-                    }
-                }){
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String,String> params = new HashMap<String, String>();
-                params.put("doc_email",useremail);
-                return params;
-            }
-        };
-
-        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
-        requestQueue.add(stringRequest);
-
-        return status;
-    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
