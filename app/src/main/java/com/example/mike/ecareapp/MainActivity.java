@@ -1,6 +1,7 @@
 package com.example.mike.ecareapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.design.widget.TabLayout;
@@ -27,6 +28,8 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import com.example.mike.ecareapp.Activities.AccountActivity;
+import com.example.mike.ecareapp.Custom.ProcessUser;
 import com.example.mike.ecareapp.Fragments.AppointmentBookingFragment;
 import com.example.mike.ecareapp.Fragments.AppointmentFragment;
 import com.example.mike.ecareapp.Fragments.DoctorAppoitmentSchedule;
@@ -123,6 +126,11 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        }else if (id == R.id.action_logout){
+            ProcessUser processUser = ProcessUser.getNewInstance(this, this);
+            processUser.signOutUser();
+            Intent intent = new Intent(MainActivity.this, AccountActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);

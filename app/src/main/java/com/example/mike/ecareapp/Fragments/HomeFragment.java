@@ -20,6 +20,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mike.ecareapp.Adapter.MainAdapter;
+import com.example.mike.ecareapp.Custom.ProcessUser;
 import com.example.mike.ecareapp.Database.DatabaseHandler;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
@@ -320,6 +321,8 @@ public class HomeFragment extends Fragment implements NavigationInterface{
         AppointmentBookingFragment appointmentBookingFragment = (AppointmentBookingFragment) fragment;
         appointmentBookingFragment.show(manager,"Appointments");
     }
+
+
 
     /**
      * This interface must be implemented by activities that contain this

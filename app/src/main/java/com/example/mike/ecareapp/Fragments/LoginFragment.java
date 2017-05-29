@@ -106,6 +106,7 @@ public class LoginFragment extends Fragment {
     }
 
     TextInputEditText email, passs;
+    final ProcessUser processUser = ProcessUser.getNewInstance(getContext(),getActivity());
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
@@ -150,7 +151,6 @@ public class LoginFragment extends Fragment {
             }
         });
 
-        final ProcessUser processUser = ProcessUser.getNewInstance(getContext(),getActivity());
 
         signin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,7 +166,17 @@ public class LoginFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        processUser.onStart();
+    }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        processUser.onStop();
+    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
