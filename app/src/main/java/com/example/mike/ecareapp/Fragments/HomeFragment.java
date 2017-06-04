@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mike.ecareapp.Adapter.MainAdapter;
@@ -100,22 +102,9 @@ public class HomeFragment extends Fragment implements NavigationInterface{
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.viewHomeItems);
         hospital = (Spinner) view.findViewById(R.id.spinnerHospital);
         specialties = (Spinner) view.findViewById(R.id.spinnerSpecialty);
-        List<MainObject> itemList = new ArrayList<>();
-        switch (mParam1){
-            case 0:
-                if (prepareDoctorItemList() != null)
-                    itemList = prepareDoctorItemList();
 
-                break;
-            case 1:
-                hospital.setVisibility(View.GONE);
-                specialties.setVisibility(View.GONE);
-                if (preparePatientItemList() != null)
-                    itemList = preparePatientItemList();
-                break;
-        }
-
-        mainAdapter = new MainAdapter(getContext(), itemList, this );
+        prepareHome(mParam1);
+        mainAdapter = new MainAdapter(getContext(), mainObjectList, this );
 
         recyclerView.setAdapter(mainAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
@@ -123,51 +112,45 @@ public class HomeFragment extends Fragment implements NavigationInterface{
     }
 
     public List<MainObject> prepareHome( int type){
+        Log.d("prepareHome: ", "starting preparation "+type);
+        List<MainObject> mainObjectList = new ArrayList<>();
         switch (type){
             case 0:
-                String REGISTER_URL = "https://footballticketing.000webhostapp.com/doctor";
-                StringRequest stringRequest = new StringRequest(Request.Method.POST, REGISTER_URL,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                try {
-                                    parseDoctorData(new JSONArray(response));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
+                String REGISTER_URL = "https://footballticketing.000webhostapp.com/doctor.php";
 
-                            }
-                        });
+                JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, REGISTER_URL, null, new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d("prepareHome: ", response.toString());
+                        parseDoctorData(response);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("prepareHome: ", error.toString());
+                    }
+                });
+
+
                 RequestQueue requestQueue = Volley.newRequestQueue(getContext());
-                requestQueue.add(stringRequest);
+                requestQueue.add(jsonArrayRequest);
                 break;
             case 1:
 
-                 REGISTER_URL = "https://footballticketing.000webhostapp.com/doc_shedule";
-                 stringRequest = new StringRequest(Request.Method.POST, REGISTER_URL,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                try {
-                                    parsePatientData(new JSONArray(response));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
+                 REGISTER_URL = "https://footballticketing.000webhostapp.com/doc_shedule.php";
+                 jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, REGISTER_URL, null, new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        parsePatientData(response);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
 
-                            }
-                        });
+                    }
+                });
                 requestQueue = Volley.newRequestQueue(getContext());
-                requestQueue.add(stringRequest);
+                requestQueue.add(jsonArrayRequest);
                 break;
         }
 
@@ -203,7 +186,7 @@ public class HomeFragment extends Fragment implements NavigationInterface{
     }
 
     //This method will parse json data doctors patients only
-    private void parsePatientData(final JSONArray array) {
+    private void parsePatientData(JSONArray array) {
         for (int i = 0; i < array.length(); i++) {
             //Creating the superhero object
             JSONObject json = null;
@@ -213,13 +196,13 @@ public class HomeFragment extends Fragment implements NavigationInterface{
                 final int pat_id  = json.getInt("pat_id");
 
 
-                String REGISTER_URL = "https://footballticketing.000webhostapp.com/patient";
-                StringRequest stringRequest = new StringRequest(Request.Method.POST, REGISTER_URL,
-                        new Response.Listener<String>() {
+                String REGISTER_URL = "https://footballticketing.000webhostapp.com/patient.php";
+                JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.POST, REGISTER_URL,null,
+                        new Response.Listener<JSONArray>() {
                             @Override
-                            public void onResponse(String response) {
+                            public void onResponse(JSONArray response) {
                                 try {
-                                    JSONArray array1 = new JSONArray(response);
+                                    JSONArray array1 = response;
                                     JSONObject object = array1.getJSONObject(0);
                                     PatientItem patientItem = new PatientItem();
                                     patientItem.setName(object.getString("name"));
@@ -235,7 +218,7 @@ public class HomeFragment extends Fragment implements NavigationInterface{
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-
+                            Log.d("parsePatientData:", error.getMessage());
                             }
                         });
                 RequestQueue requestQueue = Volley.newRequestQueue(getContext());

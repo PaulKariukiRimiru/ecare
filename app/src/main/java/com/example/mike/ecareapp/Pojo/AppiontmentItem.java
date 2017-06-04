@@ -1,5 +1,8 @@
 package com.example.mike.ecareapp.Pojo;
 
+import java.sql.Time;
+import java.util.Date;
+
 /**
  * Created by Mike on 4/28/2017.
  */
@@ -16,6 +19,17 @@ public class AppiontmentItem implements MainObject {
     String minute;
     String treatment;
     String status;
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    Date date;
+    Time time;
 
     public String getStatus() {
         return status;

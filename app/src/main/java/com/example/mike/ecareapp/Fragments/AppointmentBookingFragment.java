@@ -12,6 +12,7 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,12 +23,29 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.mike.ecareapp.Custom.Constants;
 import com.example.mike.ecareapp.Database.DatabaseHandler;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.R;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.sql.Time;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -48,6 +66,8 @@ public class AppointmentBookingFragment extends DialogFragment implements View.O
 
     private String patName;
     private OnFragmentInteractionListener mListener;
+    private Date mydate;
+    private Time mytime;
 
     public AppointmentBookingFragment() {
     }
@@ -173,6 +193,9 @@ public class AppointmentBookingFragment extends DialogFragment implements View.O
                         nMonth = month;
                         nDay = dayOfMonth;
                         date.setText(String.valueOf(nDay)+"/"+String.valueOf(nMonth)+"/"+String.valueOf(nYear));
+
+                       mydate = new Date(nYear,nMonth,nDay);
+                        Log.d("date", mydate.toString());
                     }
                 }, mYear, mMonth, mDay);
                 datePickerDialog.show();
@@ -191,6 +214,9 @@ public class AppointmentBookingFragment extends DialogFragment implements View.O
                         nHour = hourOfDay;
                         nMinute = minute;
                         time.setText(String.valueOf(nHour)+":"+String.valueOf(nMinute));
+
+                        mytime = new Time(mHour, mMinute,00);
+                        Log.d("time", mytime.toString());
                     }
                 },mHour,mMinute,false);
                 timePickerDialog.show();
@@ -198,22 +224,53 @@ public class AppointmentBookingFragment extends DialogFragment implements View.O
 
                 break;
             case R.id.btnconfirm:
-                AppiontmentItem appiontmentItem = new AppiontmentItem();
-                appiontmentItem.setMinute(String.valueOf(nMinute));
-                appiontmentItem.setHour(String.valueOf(nHour));
-                appiontmentItem.setDay(String.valueOf(nDay));
-                appiontmentItem.setMonth(String.valueOf(nMonth));
-                appiontmentItem.setYear(String.valueOf(nYear));
+                final AppiontmentItem appiontmentItem = new AppiontmentItem();
                 appiontmentItem.setStatus(String.valueOf(0));
                 appiontmentItem.setDoc_id(docId);
                 appiontmentItem.setPat_id(patId);
                 appiontmentItem.setHospital(hospital);
                 appiontmentItem.setTreatment(services.getSelectedItem().toString());
 
-                DatabaseHandler handler = new DatabaseHandler(getContext());
-                long id = handler.addAppointment(appiontmentItem);
-                mListener.setRange(id);
-                Snackbar.make(v,"Appointment booked \n Wait for confirmation",Snackbar.LENGTH_LONG).show();
+                JsonArrayRequest jsonArrayRequest1 = new JsonArrayRequest(Request.Method.POST, Constants.SHEDULE_REGISTER_URL, null, new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d("RegisterUser","response");
+                        try {
+                            JSONObject jsonObject = response.getJSONObject(0);
+                            boolean stat = jsonObject.getBoolean("error");
+                            if (!stat){
+                                Toast.makeText(getContext(),"Succesfully sent appointment wait for confirmation",Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("RegisterUser",error.getMessage());
+                        Toast.makeText(getContext(),"error "+error.getMessage(),Toast.LENGTH_SHORT).show();
+                    }
+                }){
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put("shed_userId", appiontmentItem.getPat_id());
+                        params.put("shed_docId", appiontmentItem.getDoc_id());
+                        params.put("shed_hospital", appiontmentItem.getHospital());
+                        String time = mHour+""+mMinute+""+00;
+                        String date = mYear+""+mMonth+""+mDay;
+                        params.put("shed_date", time);
+                        params.put("shed_time", date);
+                        params.put("shed_treatment", appiontmentItem.getTreatment());
+                        params.put("shed_status", appiontmentItem.getStatus());
+                        return params;
+                    }
+                };
+
+                RequestQueue requestQueue = Volley.newRequestQueue(getContext());
+                requestQueue.add(jsonArrayRequest1);
+
                 break;
         }
     }

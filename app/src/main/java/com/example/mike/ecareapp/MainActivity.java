@@ -78,8 +78,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         List<Fragment> fragments = new ArrayList<>();
         switch (type) {
             case 0:
-                fragments.add(HomeFragment.newInstance(0, id));
-                fragments.add(AppointmentFragment.newInstance(0, id));
+                fragments.add(HomeFragment.newInstance(type, id));
+                fragments.add(AppointmentFragment.newInstance(type, id));
 
                 String [] titles = {"Home", "Appointments"};
                 int [] images = {R.drawable.ic_home, R.drawable.ic_appointments};
@@ -88,8 +88,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
                 break;
             case 1:
-                fragments.add(HomeFragment.newInstance(1, id));
-                fragments.add(AppointmentFragment.newInstance(1, id));
+                fragments.add(HomeFragment.newInstance(type, id));
+                fragments.add(AppointmentFragment.newInstance(type, id));
 
                 String [] titles2 = {"Patients","Appointments"};
                 int [] images2 = {R.drawable.ic_home,R.drawable.ic_appointments};
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         if (id == R.id.action_settings) {
             return true;
         }else if (id == R.id.action_logout){
-            ProcessUser processUser = ProcessUser.getNewInstance(this, this);
+            ProcessUser processUser = new ProcessUser(this, this);
             processUser.signOutUser();
             Intent intent = new Intent(MainActivity.this, AccountActivity.class);
             startActivity(intent);

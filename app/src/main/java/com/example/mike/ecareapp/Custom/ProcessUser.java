@@ -2,6 +2,8 @@ package com.example.mike.ecareapp.Custom;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.icu.text.LocaleDisplayNames;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
@@ -14,8 +16,11 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.mike.ecareapp.MainActivity;
 import com.example.mike.ecareapp.Pojo.DoctorItem;
 import com.example.mike.ecareapp.Pojo.MainObject;
 import com.example.mike.ecareapp.Pojo.PatientItem;
@@ -42,23 +47,40 @@ public class ProcessUser {
 
     private static ProcessUser processUser;
     private final Context context;
+    private  WorkerInterface workerInterface;
+    private int type;
     private  MainObject mainObject;
     private final Activity activity;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    public static synchronized ProcessUser getNewInstance(Context context, Activity activity){
+    public static ProcessUser getNewInstance(Context context, Activity activity, WorkerInterface wo){
         if (processUser != null){
-            processUser = new ProcessUser(context, activity);
+            processUser = new ProcessUser(context, activity, wo);
         }
         return processUser;
     }
 
 
-    private ProcessUser(Context context, Activity activity){
+    public ProcessUser(Context context, Activity activity, WorkerInterface workerInterface){
         this.context = context;
         this.activity = activity;
+        this.workerInterface = workerInterface;
+
+        mAuth = FirebaseAuth.getInstance();
+        Log.d("ProcessUser: ","Auth object created");
+
+    }
+
+    public ProcessUser(Context context, Activity activity, int type){
+        this.context = context;
+        this.activity = activity;
+        this.type = type;
+
+        mAuth = FirebaseAuth.getInstance();
+        Log.d("ProcessUser: ","Auth object created");
+
     }
 
     /**
@@ -82,9 +104,9 @@ public class ProcessUser {
      * methord to create firebase user
      */
 
-    public boolean createFirebaseUser(MainObject mainObject){
+    public void createFirebaseUser(MainObject mainObject){
         this.mainObject = mainObject;
-
+        Log.d("createFirebaaseUser: ","Start of methord");
         // [START create_user_with_email]
         switch (userType(mainObject)){
             case 0:
@@ -96,14 +118,10 @@ public class ProcessUser {
                                 if (task.isSuccessful()) {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "createUserWithEmail:success");
-                                    FirebaseUser user = mAuth.getCurrentUser();
-                                    if (user != null)
-                                        processStatus(registerUser(user.getUid()));
-                                    sendEmailVerification();
+                                    registerUser();
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                    processStatus(false);
                                     Toast.makeText(activity, "Authentication failed.",
                                             Toast.LENGTH_SHORT).show();
                                 }
@@ -125,14 +143,10 @@ public class ProcessUser {
                                 if (task.isSuccessful()) {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "createUserWithEmail:success");
-                                    FirebaseUser user = mAuth.getCurrentUser();
-                                    if (user != null)
-                                        processStatus(registerUser(user.getUid()));
-                                    sendEmailVerification();
+                                    registerUser();
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                    processStatus(false);
                                     Toast.makeText(activity, "Authentication failed.",
                                             Toast.LENGTH_SHORT).show();
                                 }
@@ -147,7 +161,6 @@ public class ProcessUser {
                 break;
         }
 
-        return status;
     }
 
     /**
@@ -190,10 +203,8 @@ public class ProcessUser {
 
     public boolean confirmDetails(String email, String password){
         Log.d(TAG, "signIn:" + email);
-
-
+        final boolean[] status = new boolean[1];
         //showProgressDialog();
-
         // [START sign_in_with_email]
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
@@ -202,95 +213,154 @@ public class ProcessUser {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            processStatus(true);
+                            Intent intent = new Intent(context, MainActivity.class);
+                            intent.putExtra("type", type);
+                            activity.startActivity(intent);;
+                            activity.finish();
                             //updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             Toast.makeText(context, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                            processStatus(false);
+                            status[0] = false;
                             //updateUI(null);
                         }
 
                         // [START_EXCLUDE]
                         if (!task.isSuccessful()) {
                             //mStatusTextView.setText(R.string.auth_failed);
-                            processStatus(false);
+                            status[0] = false;
                         }
                         //hideProgressDialog();
                         // [END_EXCLUDE]
                     }
                 });
         // [END sign_in_with_email]
-        return status;
+        return status[0];
     }
 
     /**
-     * @param id
+     * @param
      * @return
      *
      * methrod to register users to ecare database
      */
 
-    private boolean registerUser(final String id){
+    private void registerUser(){
 
         switch (userType(mainObject)) {
             case 0:
 
                 final PatientItem patientItem = (PatientItem) mainObject;
 
-                StringRequest stringRequest = new StringRequest(Request.Method.POST, Constants.PATIENT_REGISTER_URL,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                processStatus(true);
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                processStatus(false);
-                            }
-                        }) {
+                Log.d("item",patientItem.getName()+patientItem.getEmail()+patientItem.getLocation());
+
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Constants.PATIENT_REGISTER_URL, null, new Response.Listener<JSONObject>() {
                     @Override
-                    protected Map<String, String> getParams() {
+                    public void onResponse(JSONObject response) {
+                        Log.d("RegisterUser","response");
+                        try {
+                            JSONObject jsonObject = response;
+                            boolean stat = jsonObject.getBoolean("error");
+                            if (!stat){
+                                sendEmailVerification();
+                                workerInterface.isSuccessful(true);
+                            }else {
+                                workerInterface.isSuccessful(false);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("RegisterUser",error.getLocalizedMessage());
+                    }
+                }){
+                    @Override
+                    protected Map<String, String> getParams(){
                         Map<String, String> params = new HashMap<String, String>();
-                        params.put("pat_id", id);
                         params.put("pat_name", patientItem.getName());
                         params.put("pat_email", patientItem.getEmail());
                         params.put("pat_password", patientItem.getPassword());
                         params.put("pat_location", patientItem.getLocation());
                         return params;
                     }
-
                 };
 
-                RequestQueue requestQueue = Volley.newRequestQueue(context);
-                requestQueue.add(stringRequest);
+
+//                StringRequest stringRequest = new StringRequest(Request.Method.POST, Constants.PATIENT_REGISTER_URL,
+//                        new Response.Listener<String>() {
+//                            @Override
+//                            public void onResponse(String response) {
+//                                Log.d("RegisterUser","response");
+//                                try {
+//                                    JSONArray jresponse = new JSONArray(response);
+//                                    JSONObject jsonObject = jresponse.getJSONObject(0);
+//                                    if (jsonObject.getBoolean("error"))
+//                                        processStatus(true);
+//                                    else
+//                                        processStatus(false);
+//                                } catch (JSONException e) {
+//                                    e.printStackTrace();
+//                                }
+//
+//                            }
+//                        },
+//                        new Response.ErrorListener() {
+//                            @Override
+//                            public void onErrorResponse(VolleyError error) {
+//                                Log.d("RegisterUser","response");
+//                                processStatus(false);
+//                            }
+//                        }) {
+//                    @Override
+//                    protected Map<String, String> getParams() {
+//                        Map<String, String> params = new HashMap<String, String>();
+//                        params.put("pat_name", patientItem.getName());
+//                        params.put("pat_email", patientItem.getEmail());
+//                        params.put("pat_password", patientItem.getPassword());
+//                        params.put("pat_location", patientItem.getLocation());
+//                        return params;
+//                    }
+//
+//                };
+                final RequestQueue requestQueue = Volley.newRequestQueue(context);
+                requestQueue.add(jsonObjectRequest);
             break;
 
             case 1:
                 final DoctorItem doctorItem = (DoctorItem) mainObject;
 
-                StringRequest docRequest = new StringRequest(Request.Method.POST, Constants.DOCTOR_REGISTER_URL,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                processStatus(true);
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                processStatus(false);
-                            }
-                        }) {
+
+                JsonObjectRequest jsonObjectRequest1 = new JsonObjectRequest(Request.Method.POST, Constants.DOCTOR_REGISTER_URL, null, new Response.Listener<JSONObject>() {
                     @Override
-                    protected Map<String, String> getParams() {
+                    public void onResponse(JSONObject response) {
+                        Log.d("RegisterUser","response");
+                        try {
+                            JSONObject jsonObject = response;
+                            boolean stat = jsonObject.getBoolean("error");
+                            if (!stat){
+                                sendEmailVerification();
+                                workerInterface.isSuccessful(true);
+                            }else {
+                                workerInterface.isSuccessful(false);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("RegisterUser",error.getMessage());
+                    }
+                }){
+                    @Override
+                    protected Map<String, String> getParams(){
                         Map<String, String> params = new HashMap<String, String>();
-                        params.put("doc_id", id);
                         params.put("doc_name", doctorItem.getName());
                         params.put("doc_email", doctorItem.getEmail());
                         params.put("doc_password", doctorItem.getPassword());
@@ -298,25 +368,14 @@ public class ProcessUser {
                         params.put("doc_specialty", doctorItem.getSpecialty());
                         return params;
                     }
-
                 };
 
                 RequestQueue requestQueue1 = Volley.newRequestQueue(context);
-                requestQueue1.add(docRequest);
+                requestQueue1.add(jsonObjectRequest1);
 
             break;
 
         }
-        return status;
-    }
-
-    /**
-     * methord to return the status of processes
-     */
-    Boolean status;
-    private boolean processStatus(Boolean val){
-        status = val;
-        return status;
     }
 
     public void onStart(){

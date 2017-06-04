@@ -106,7 +106,7 @@ public class LoginFragment extends Fragment {
     }
 
     TextInputEditText email, passs;
-    final ProcessUser processUser = ProcessUser.getNewInstance(getContext(),getActivity());
+     ProcessUser processUser;
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
@@ -114,7 +114,7 @@ public class LoginFragment extends Fragment {
         // Inflate the layout for this fragment
 
         view = inflater.inflate(R.layout.fragment_login, container, false);
-
+        processUser = ProcessUser.getNewInstance(getContext(),getActivity());
         email = (TextInputEditText) view.findViewById(R.id.edEmail);
         passs = (TextInputEditText) view.findViewById(R.id.edPassword);
 
@@ -156,7 +156,9 @@ public class LoginFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (!email.getText().toString().isEmpty() && !passs.getText().toString().isEmpty()) {
-                    processUser.confirmDetails(email.getText().toString(),passs.getText().toString());
+                    ProcessUser processUser = new ProcessUser(getContext(), getActivity(), mParam2);
+                    boolean stat = processUser.confirmDetails(email.getText().toString(),passs.getText().toString());
+
                 }else {
                     Snackbar.make(view, "Please ensure that you have written both your email and password", Snackbar.LENGTH_SHORT).show();
                 }
@@ -169,13 +171,15 @@ public class LoginFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        processUser.onStart();
+        if (processUser != null)
+            processUser.onStart();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        processUser.onStop();
+        if (processUser != null)
+            processUser.onStop();
     }
 
     // TODO: Rename method, update argument and hook method into UI event

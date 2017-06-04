@@ -27,6 +27,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mike.ecareapp.Activities.AccountActivity;
 import com.example.mike.ecareapp.Custom.ProcessUser;
+import com.example.mike.ecareapp.Custom.WorkerInterface;
 import com.example.mike.ecareapp.Database.DatabaseHandler;
 import com.example.mike.ecareapp.Pojo.MainObject;
 import com.example.mike.ecareapp.Pojo.PatientItem;
@@ -52,7 +53,7 @@ import static com.google.android.gms.internal.zzs.TAG;
  * Use the {@link RegisterFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RegisterFragment extends Fragment {
+public class RegisterFragment extends Fragment implements WorkerInterface{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -105,13 +106,13 @@ public class RegisterFragment extends Fragment {
 
     TextInputEditText name, email, password;
     AppCompatSpinner locationSpinner;
-
+    View view;
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        View view = inflater.inflate(R.layout.fragment_register, container, false);
+        view = inflater.inflate(R.layout.fragment_register, container, false);
 
         name = (TextInputEditText) view.findViewById(R.id.edNames);
         email = (TextInputEditText) view.findViewById(R.id.edEmail);
@@ -144,7 +145,10 @@ public class RegisterFragment extends Fragment {
                     patientItem.setPassword(password.getText().toString());
                     patientItem.setLocation(locationSpinner.getSelectedItem().toString());
 
-                    if (registerUser(patientItem)){
+                    Log.d("item",name.getText().toString()+email.getText().toString()+password.getText().toString()+locationSpinner.getSelectedItem().toString());
+
+                    registerUser(patientItem);
+                    if (status){
                         Fragment login = LoginFragment.newInstance(mParam1,mParam2);
                         FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
                         transaction1.replace(R.id.fragment,login);
@@ -196,9 +200,13 @@ public class RegisterFragment extends Fragment {
 
 
 
-    private boolean registerUser(MainObject object){
-        ProcessUser processUser = ProcessUser.getNewInstance(getContext(), getActivity());
-        return processUser.createFirebaseUser(object);
+    private void registerUser(MainObject object){
+        ProcessUser processUser = new ProcessUser(getContext(), getActivity(), this);
+        processUser.createFirebaseUser(object);
+    }
+    Boolean status = false;
+    private void setProgStatus(Boolean status){
+        this.status = status;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -223,6 +231,19 @@ public class RegisterFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void isSuccessful(boolean success) {
+        if (success){
+            Fragment login = LoginFragment.newInstance(mParam1, mParam2);
+            FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
+            transaction1.replace(R.id.fragment, login);
+            transaction1.addToBackStack(null);
+            transaction1.commit();
+        }else {
+            Snackbar.make(view,"Try again please",Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     /**
