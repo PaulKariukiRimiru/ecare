@@ -7,18 +7,31 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.mike.ecareapp.Adapter.MainAdapter;
+import com.example.mike.ecareapp.Custom.Constants;
+import com.example.mike.ecareapp.Custom.ProcessUser;
 import com.example.mike.ecareapp.Database.DatabaseHandler;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
 import com.example.mike.ecareapp.Pojo.MainObject;
 import com.example.mike.ecareapp.R;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +58,6 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
 
     List<MainObject> appointmentList;
     MainAdapter adapter;
-    private int range;
 
     public AppointmentFragment() {
         // Required empty public constructor
@@ -83,13 +95,11 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_appointment, container, false);
-        final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.viewAppointments);
-        if (appointmentList == null){
-            appointmentList = new ArrayList<>();
-            if (prepareAppointments() != null)
-                appointmentList = prepareAppointments();
-        }
-        adapter = new MainAdapter(getContext(),appointmentList,this);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.viewAppointments);
+
+        adapter = new MainAdapter(getContext(),mainObjectList,this);
+        getAppointments(mParam2);
+
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
 
@@ -97,39 +107,105 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
         refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                range = Integer.parseInt(String.valueOf(mListener.getRange())) - appointmentList.size();
-                appointmentList = prepareAppointments();
-                for (int i =appointmentList.size()-range; i <= range ; i++ )
-                    adapter.notifyItemInserted(i);
-                adapter.notifyItemRangeChanged(appointmentList.size()-range, range);
+            ProcessUser processUser1 = new ProcessUser(getContext(),mParam1);
+            appointmentList = processUser1.getAppointments(mParam2);
             }
         });
         return view;
     }
 
+    private void setMainList(List<MainObject> mainObjectList) {
+        this.mainObjectList = mainObjectList;
+    }
+
+    List<MainObject> mainObjectList = new ArrayList<>();
+    public void getAppointments(final String id){
+
+        final RequestQueue requestQueue = Volley.newRequestQueue(getContext());
+        switch (mParam1){
+            case 0:
+                final List<MainObject> mainObjectList1 = new ArrayList<>();
+                String url = Constants.SHEDULE_PATIENT_GET_URL+id;
+                JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d("response appointment: ", response.toString());
+                        for (int i = 0; i <response.length(); i++){
+                            AppiontmentItem appiontmentItem = new AppiontmentItem();
+
+                            try {
+                                JSONObject object = response.getJSONObject(i);
+                                appiontmentItem.setAppoint_id("id");
+                                appiontmentItem.setDate(object.getString("date"));
+                                appiontmentItem.setTime(object.getString("time"));
+                                appiontmentItem.setHospital(object.getString("hospital"));
+                                appiontmentItem.setTreatment(object.getString("treatment"));
+                                appiontmentItem.setPat_id("pat_id");
+                                appiontmentItem.setDoc_id("doc_id");
+                                appiontmentItem.setStatus("status");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            mainObjectList1.add(appiontmentItem);
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+                requestQueue.add(arrayRequest);
+                adapter.notifyDataSetChanged();
+                setMainList(mainObjectList1);
+                break;
+            case 1:
+                final List<MainObject> mainObjectList2 = new ArrayList<>();
+
+                String url1 = Constants.SHEDULE_DOCTOR_GET_URL+id;
+                JsonArrayRequest arrayRequest2 = new JsonArrayRequest(Request.Method.GET, url1, null, new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        for (int i = 0; i <response.length(); i++){
+                            try {
+                                JSONObject object = response.getJSONObject(i);
+                                DoctorAppointmentItem appiontmentItem = new DoctorAppointmentItem();
+                                appiontmentItem.setAppoint_id("id");
+                                appiontmentItem.setDate(object.getString("date"));
+                                appiontmentItem.setTime(object.getString("time"));
+                                appiontmentItem.setHospital(object.getString("hospital"));
+                                appiontmentItem.setTreatment(object.getString("treatment"));
+                                appiontmentItem.setPat_id("pat_id");
+                                appiontmentItem.setDoc_id("doc_id");
+                                appiontmentItem.setStatus("status");
+                                mainObjectList.add(appiontmentItem);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+                requestQueue.add(arrayRequest2);
+                adapter.notifyDataSetChanged();
+                setMainList(mainObjectList2);
+            default:
+                Log.d("Unknown id", id);
+        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
-        appointmentList = new ArrayList<>();
-        if (prepareAppointments() != null)
-            appointmentList = prepareAppointments();
-    }
 
-    public List<MainObject> prepareAppointments(){
-        DatabaseHandler databaseHandler = new DatabaseHandler(getContext());
-        List<MainObject> mainObjectList = new ArrayList<>();
-
-        switch (mParam1){
-            case 0:
-                for (AppiontmentItem appiontmentItem : databaseHandler.getPatientAppointment(mParam2))
-                    mainObjectList.add(appiontmentItem);
-                break;
-            case 1:
-                for (DoctorAppointmentItem appiontmentItem : databaseHandler.getDoctorAppointment(mParam2))
-                    mainObjectList.add(appiontmentItem);
-                break;
-        }
-        return mainObjectList;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

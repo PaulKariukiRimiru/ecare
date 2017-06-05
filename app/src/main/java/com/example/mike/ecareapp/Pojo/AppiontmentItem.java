@@ -20,16 +20,24 @@ public class AppiontmentItem implements MainObject {
     String treatment;
     String status;
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
-    Date date;
-    Time time;
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    String date;
+    String time;
 
     public String getStatus() {
         return status;

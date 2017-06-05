@@ -15,7 +15,25 @@ public class DoctorAppointmentItem implements MainObject {
     String hour;
     String minute;
     String treatment;
-    String status;
+    String status; public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    String date;
+    String time;
+
 
     public String getStatus() {
         return status;

@@ -168,6 +168,7 @@ public class HomeFragment extends Fragment implements NavigationInterface{
             try {
                 //Getting json
                 json = array.getJSONObject(i);
+                doctorItem.setDoc_id(json.getString("id"));
                 doctorItem.setName(json.getString("name"));
                 doctorItem.setEmail(json.getString("email"));
                 doctorItem.setPassword(json.getString("password"));
@@ -240,38 +241,6 @@ public class HomeFragment extends Fragment implements NavigationInterface{
 
     private void setMainList(List<MainObject> mainObjectList) {
         this.mainObjectList = mainObjectList;
-    }
-
-    public List<MainObject> prepareDoctorItemList(){
-        DatabaseHandler handler = new DatabaseHandler(getContext());
-        List<MainObject> mainObjectList = new ArrayList<>();
-        for (DoctorItem doctorItem : handler.getAllDoctors())
-            mainObjectList.add(doctorItem);
-        return mainObjectList;
-    }
-
-    public List<MainObject> preparePatientItemList(){
-        DatabaseHandler handler = new DatabaseHandler(getContext());
-        List<AppiontmentItem> appiontmentItemList = new ArrayList<>();
-        List<PatientItem> patientItemList = new ArrayList<>();
-        List<MainObject> mainObjectList = new ArrayList<>();
-
-        for (AppiontmentItem appiontmentItem : handler.getPatientAppointmets(mParam2))
-            appiontmentItemList.add(appiontmentItem);
-        for (AppiontmentItem appiontmentItem: appiontmentItemList){
-            if (!patientItemList.isEmpty()) {
-                for (PatientItem patientItem : patientItemList) {
-                    if (!patientItem.getPat_id().contentEquals(handler.getPatient(appiontmentItem.getPat_id()).getPat_id())) {
-                        patientItemList.add(handler.getPatient(appiontmentItem.getPat_id()));
-                    }
-                }
-            }else
-                patientItemList.add(handler.getPatient(appiontmentItem.getPat_id()));
-        }
-        for (PatientItem patientItem : patientItemList)
-            mainObjectList.add(patientItem);
-
-        return mainObjectList;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

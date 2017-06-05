@@ -97,8 +97,8 @@ public class DoctorAppoitmentSchedule extends DialogFragment implements Transfer
 
         hospital.setText(appiontmentItem.getHospital());
         treatment.setText(appiontmentItem.getTreatment());
-        date.setText(appiontmentItem.getDay()+"/"+appiontmentItem.getMonth()+"/"+appiontmentItem.getYear());
-        time.setText(appiontmentItem.getHour()+":"+appiontmentItem.getMinute());
+        date.setText(appiontmentItem.getDate());
+        time.setText(appiontmentItem.getTime());
         name.setText(handler.getPatient(appiontmentItem.getPat_id()).getName());
 
         Button reschedule = (Button) view.findViewById(R.id.btnreschedule);
@@ -117,7 +117,7 @@ public class DoctorAppoitmentSchedule extends DialogFragment implements Transfer
             @Override
             public void onClick(View v) {
                 appiontmentItem.setStatus("1");
-                handler.modifyAppointment(appiontmentItem);
+
                 dismiss();
             }
         });
@@ -150,8 +150,8 @@ public class DoctorAppoitmentSchedule extends DialogFragment implements Transfer
 
     @Override
     public void getChanges(AppiontmentItem appiontmentItem) {
-        date.setText(appiontmentItem.getDay()+"/"+appiontmentItem.getMonth()+"/"+appiontmentItem.getYear());
-        time.setText(appiontmentItem.getHour()+":"+appiontmentItem.getMinute());
+        date.setText(appiontmentItem.getDate());
+        time.setText(appiontmentItem.getTime());
     }
 
     /**

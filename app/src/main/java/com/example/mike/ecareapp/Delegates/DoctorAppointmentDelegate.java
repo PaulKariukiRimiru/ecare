@@ -54,9 +54,8 @@ public class DoctorAppointmentDelegate extends AdapterDelegate<List<MainObject>>
         final DoctorAppointmentItem appointmentItem = (DoctorAppointmentItem) items.get(position);
         DoctorAppointmentDelegate.DoctorAppointmentDelegateViewHolder viewHolder = (DoctorAppointmentDelegate.DoctorAppointmentDelegateViewHolder) holder;
 
-        DatabaseHandler handler = new DatabaseHandler(context);
-        viewHolder.patientName.setText(handler.getPatient(appointmentItem.getPat_id()).getName());
-        viewHolder.email.setText(handler.getPatient(appointmentItem.getPat_id()).getEmail());
+        viewHolder.patientName.setText(appointmentItem.getPat_id());
+        viewHolder.email.setText(appointmentItem.getPat_id());
         viewHolder.date.setText("On "+ appointmentItem.getDay()+"/"+appointmentItem.getMonth()+"/"+appointmentItem.getYear()+ " At "+ appointmentItem.getHour()+":"+appointmentItem.getMinute());
         viewHolder.treatment.setText(appointmentItem.getTreatment());
 

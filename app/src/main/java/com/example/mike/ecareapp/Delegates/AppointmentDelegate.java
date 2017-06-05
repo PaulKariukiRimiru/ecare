@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import android.widget.LinearLayout;
 
 import com.andexert.library.RippleView;
 import com.example.mike.ecareapp.Database.DatabaseHandler;
+import com.example.mike.ecareapp.Fragments.DoctorAppoitmentSchedule;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.Pojo.DoctorItem;
@@ -55,11 +57,11 @@ public class AppointmentDelegate extends AdapterDelegate<List<MainObject>> {
         final AppiontmentItem appointmentItem = (AppiontmentItem) items.get(position);
         AppointmentDelegateViewHolder viewHolder = (AppointmentDelegateViewHolder) holder;
 
-        final DatabaseHandler handler = new DatabaseHandler(context);
-        DoctorItem doctorItem = handler.getDoctorItem(appointmentItem.getDoc_id());
-        viewHolder.doctorName.setText(doctorItem.getName());
+        Log.d("AppointmentDelegate", appointmentItem.getTreatment());
+
+        viewHolder.doctorName.setText(appointmentItem.getDoc_id());
         viewHolder.hospitalName.setText(appointmentItem.getHospital());
-        viewHolder.date.setText("On "+ appointmentItem.getDay()+"/"+appointmentItem.getMonth()+"/"+appointmentItem.getYear()+ " At "+ appointmentItem.getHour()+":"+appointmentItem.getMinute());
+        viewHolder.date.setText("On "+ appointmentItem.getDate()+ " At "+ appointmentItem.getTime());
         viewHolder.treatment.setText(appointmentItem.getTreatment());
 
         viewHolder.rippleView.setCentered(true);

@@ -114,7 +114,7 @@ public class LoginFragment extends Fragment {
         // Inflate the layout for this fragment
 
         view = inflater.inflate(R.layout.fragment_login, container, false);
-        processUser = ProcessUser.getNewInstance(getContext(),getActivity());
+
         email = (TextInputEditText) view.findViewById(R.id.edEmail);
         passs = (TextInputEditText) view.findViewById(R.id.edPassword);
 

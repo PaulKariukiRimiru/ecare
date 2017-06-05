@@ -155,9 +155,6 @@ public class RegisterFragment extends Fragment implements WorkerInterface{
                         transaction1.addToBackStack(null);
                         transaction1.commit();
                     }
-                    else {
-                        Snackbar.make(v,"Try again please",Snackbar.LENGTH_SHORT).show();
-                    }
                 }else
                     Snackbar.make(v,"Fill the form and try again",Snackbar.LENGTH_SHORT).show();
 

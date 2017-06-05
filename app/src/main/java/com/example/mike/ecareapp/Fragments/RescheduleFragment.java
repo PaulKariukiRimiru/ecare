@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,12 +20,29 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.mike.ecareapp.Custom.Constants;
 import com.example.mike.ecareapp.Database.DatabaseHandler;
 import com.example.mike.ecareapp.Interfaces.TransferInterface;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.R;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.sql.Date;
+import java.sql.Time;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -97,11 +115,14 @@ public class RescheduleFragment extends DialogFragment implements View.OnClickLi
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         return dialog;
     }
+
+    View view;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_reschedule, container, false);
+        view = inflater.inflate(R.layout.fragment_reschedule, container, false);
 
         date = (Button) view.findViewById(R.id.btndate);
         time = (Button) view.findViewById(R.id.btntime);
@@ -136,6 +157,8 @@ public class RescheduleFragment extends DialogFragment implements View.OnClickLi
         mListener = null;
     }
 
+    Date myDate;
+    Time mytime;
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -156,7 +179,7 @@ public class RescheduleFragment extends DialogFragment implements View.OnClickLi
                     }
                 }, mYear, mMonth, mDay);
                 datePickerDialog.show();
-
+                myDate = new Date(mYear,mMonth,mDay);
 
                 break;
             case R.id.btntime:
@@ -174,22 +197,52 @@ public class RescheduleFragment extends DialogFragment implements View.OnClickLi
                     }
                 },mHour,mMinute,false);
                 timePickerDialog.show();
-
+                mytime = new Time(mHour,mMinute,00);
 
                 break;
             case R.id.btnconfirm:
-                DatabaseHandler handler = new DatabaseHandler(getContext());
-                AppiontmentItem appiontmentItem = handler.getAppointment(mParam1);
-                appiontmentItem.setMinute(String.valueOf(nMinute));
-                appiontmentItem.setHour(String.valueOf(nHour));
-                appiontmentItem.setDay(String.valueOf(nDay));
-                appiontmentItem.setMonth(String.valueOf(nMonth));
-                appiontmentItem.setYear(String.valueOf(nYear));
+                final AppiontmentItem appiontmentItem = new AppiontmentItem();
+                appiontmentItem.setAppoint_id(mParam1);
+                appiontmentItem.setDate(myDate.toString());
+                appiontmentItem.setTime(mytime.toString());
                 appiontmentItem.setStatus(String.valueOf(1));
 
-                handler.modifyAppointment(appiontmentItem);
-                Snackbar.make(v,"Appointment Confirmed",Snackbar.LENGTH_LONG).show();
-                dismiss();
+                JsonObjectRequest arrayRequest = new JsonObjectRequest(Request.Method.POST, Constants.SHEDULE_UPDATE, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            boolean success = response.getBoolean("error");
+                            if (!success){
+                                Snackbar.make(view,"Appointment Confirmed",Snackbar.LENGTH_LONG).show();
+                                dismiss();
+                            }else {
+                                Snackbar.make(view,"Appointment Confirmed Failed",Snackbar.LENGTH_LONG).show();
+                                Log.d("Error message:",response.getString("message"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Response error message:",error.getLocalizedMessage());
+                    }
+                }){
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("shed_id", appiontmentItem.getAppoint_id());
+                        params.put("shed_status", appiontmentItem.getStatus());
+                        params.put("shed_date", appiontmentItem.getDate());
+                        params.put("shed_time", appiontmentItem.getTime());
+                        return params;
+                    }
+                };
+
+                RequestQueue queue = Volley.newRequestQueue(getContext());
+                queue.add(arrayRequest);
+
                 break;
         }
     }

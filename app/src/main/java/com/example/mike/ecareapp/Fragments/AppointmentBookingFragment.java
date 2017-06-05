@@ -4,13 +4,10 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,31 +16,26 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mike.ecareapp.Custom.Constants;
-import com.example.mike.ecareapp.Database.DatabaseHandler;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.R;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Time;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,7 +58,7 @@ public class AppointmentBookingFragment extends DialogFragment implements View.O
 
     private String patName;
     private OnFragmentInteractionListener mListener;
-    private Date mydate;
+    private String mydate;
     private Time mytime;
 
     public AppointmentBookingFragment() {
@@ -194,8 +186,8 @@ public class AppointmentBookingFragment extends DialogFragment implements View.O
                         nDay = dayOfMonth;
                         date.setText(String.valueOf(nDay)+"/"+String.valueOf(nMonth)+"/"+String.valueOf(nYear));
 
-                       mydate = new Date(nYear,nMonth,nDay);
-                        Log.d("date", mydate.toString());
+                       mydate = String.valueOf(nDay)+"/"+String.valueOf(nMonth)+"/"+String.valueOf(nYear);
+                        Log.d("date", mydate);
                     }
                 }, mYear, mMonth, mDay);
                 datePickerDialog.show();
@@ -231,15 +223,18 @@ public class AppointmentBookingFragment extends DialogFragment implements View.O
                 appiontmentItem.setHospital(hospital);
                 appiontmentItem.setTreatment(services.getSelectedItem().toString());
 
-                JsonArrayRequest jsonArrayRequest1 = new JsonArrayRequest(Request.Method.POST, Constants.SHEDULE_REGISTER_URL, null, new Response.Listener<JSONArray>() {
+                Log.d("appointment", appiontmentItem.getPat_id()+appiontmentItem.getDoc_id()+appiontmentItem.getHospital()+ mydate.toString()+ mytime.toString()+ appiontmentItem.getTreatment()+ appiontmentItem.getStatus());
+
+                StringRequest request = new StringRequest(Request.Method.POST, Constants.SHEDULE_REGISTER_URL, new Response.Listener<String>() {
                     @Override
-                    public void onResponse(JSONArray response) {
+                    public void onResponse(String response) {
                         Log.d("RegisterUser","response");
                         try {
-                            JSONObject jsonObject = response.getJSONObject(0);
+                            JSONObject jsonObject = new JSONObject(response);
                             boolean stat = jsonObject.getBoolean("error");
                             if (!stat){
                                 Toast.makeText(getContext(),"Succesfully sent appointment wait for confirmation",Toast.LENGTH_SHORT).show();
+                                dismiss();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -253,24 +248,20 @@ public class AppointmentBookingFragment extends DialogFragment implements View.O
                     }
                 }){
                     @Override
-                    protected Map<String, String> getParams() throws AuthFailureError {
+                    protected Map<String, String> getParams() {
                         Map<String, String> params = new HashMap<String, String>();
                         params.put("shed_userId", appiontmentItem.getPat_id());
                         params.put("shed_docId", appiontmentItem.getDoc_id());
                         params.put("shed_hospital", appiontmentItem.getHospital());
-                        String time = mHour+""+mMinute+""+00;
-                        String date = mYear+""+mMonth+""+mDay;
-                        params.put("shed_date", time);
-                        params.put("shed_time", date);
+                        params.put("shed_date", mydate);
+                        params.put("shed_time", mytime.toString());
                         params.put("shed_treatment", appiontmentItem.getTreatment());
                         params.put("shed_status", appiontmentItem.getStatus());
                         return params;
                     }
                 };
-
                 RequestQueue requestQueue = Volley.newRequestQueue(getContext());
-                requestQueue.add(jsonArrayRequest1);
-
+                requestQueue.add(request);
                 break;
         }
     }

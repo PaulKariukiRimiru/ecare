@@ -21,6 +21,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mike.ecareapp.MainActivity;
+import com.example.mike.ecareapp.Pojo.AppiontmentItem;
+import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
 import com.example.mike.ecareapp.Pojo.DoctorItem;
 import com.example.mike.ecareapp.Pojo.MainObject;
 import com.example.mike.ecareapp.Pojo.PatientItem;
@@ -34,7 +36,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.android.gms.internal.zzs.TAG;
@@ -46,22 +50,20 @@ import static com.google.android.gms.internal.zzs.TAG;
 public class ProcessUser {
 
     private static ProcessUser processUser;
-    private final Context context;
+    private  Context context;
     private  WorkerInterface workerInterface;
     private int type;
     private  MainObject mainObject;
-    private final Activity activity;
+    private  Activity activity;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    public static ProcessUser getNewInstance(Context context, Activity activity, WorkerInterface wo){
-        if (processUser != null){
-            processUser = new ProcessUser(context, activity, wo);
-        }
-        return processUser;
-    }
 
+    public ProcessUser (Context context, int type){
+        this.context = context;
+        this.type = type;
+    }
 
     public ProcessUser(Context context, Activity activity, WorkerInterface workerInterface){
         this.context = context;
@@ -201,7 +203,7 @@ public class ProcessUser {
      * methord to confirm user details
      */
 
-    public boolean confirmDetails(String email, String password){
+    public boolean confirmDetails(final String email, String password){
         Log.d(TAG, "signIn:" + email);
         final boolean[] status = new boolean[1];
         //showProgressDialog();
@@ -213,10 +215,67 @@ public class ProcessUser {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
-                            Intent intent = new Intent(context, MainActivity.class);
-                            intent.putExtra("type", type);
-                            activity.startActivity(intent);;
-                            activity.finish();
+                            Log.d("Email", email);
+                            String url = Constants.PATIENT_GET_URL+email;
+
+                            StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    try {
+
+                                        Log.d("response", response);
+                                        JSONArray jsonObject = new JSONArray(response);
+                                        JSONObject jsonObject1 = jsonObject.getJSONObject(0);
+
+                                        Intent intent = new Intent(context, MainActivity.class);
+                                        intent.putExtra("type", type);
+                                        intent.putExtra("id", jsonObject1.getString("id"));
+                                        activity.startActivity(intent);;
+                                        activity.finish();
+                                    } catch (JSONException e) {
+                                        Log.d("Error in json", e.getLocalizedMessage());
+                                    }
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.d("Error in volley", error.toString());
+                                }
+                            });
+
+//                            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, Constants.PATIENT_GET_URL, null, new Response.Listener<JSONObject>() {
+//                                @Override
+//                                public void onResponse(JSONObject response) {
+//
+//                                    try {
+//                                        Intent intent = new Intent(context, MainActivity.class);
+//                                        intent.putExtra("type", type);
+//                                        intent.putExtra("id", response.getString("id"));
+//                                        activity.startActivity(intent);;
+//                                        activity.finish();
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                    }
+//
+//                                }
+//                            }, new Response.ErrorListener() {
+//                                @Override
+//                                public void onErrorResponse(VolleyError error) {
+//                                    error.printStackTrace();
+//                                }
+//                            }){
+//                                @Override
+//                                protected Map<String, String> getParams() throws AuthFailureError {
+//                                    Map<String, String> params = new HashMap<String, String>();
+//                                    params.put("pat_email", email);
+//                                    return params;
+//                                }
+//                            };
+
+                            RequestQueue requestQueue = Volley.newRequestQueue(context);
+                            requestQueue.add(stringRequest);
+
+
                             //updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -246,6 +305,10 @@ public class ProcessUser {
      *
      * methrod to register users to ecare database
      */
+    String id;
+    public String getUserId(){
+        return id;
+    }
 
     private void registerUser(){
 
@@ -254,33 +317,35 @@ public class ProcessUser {
 
                 final PatientItem patientItem = (PatientItem) mainObject;
 
-                Log.d("item",patientItem.getName()+patientItem.getEmail()+patientItem.getLocation());
-
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Constants.PATIENT_REGISTER_URL, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d("RegisterUser","response");
-                        try {
-                            JSONObject jsonObject = response;
-                            boolean stat = jsonObject.getBoolean("error");
-                            if (!stat){
-                                sendEmailVerification();
-                                workerInterface.isSuccessful(true);
-                            }else {
-                                workerInterface.isSuccessful(false);
+                StringRequest stringRequest = new StringRequest(Request.Method.POST, Constants.PATIENT_REGISTER_URL,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                Log.d("RegisterUser","response");
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response);
+                                    Log.d("object",response);
+                                    boolean stat = jsonObject.getBoolean("error");
+                                    if (!stat){
+                                        sendEmailVerification();
+                                        workerInterface.isSuccessful(true);
+                                    }else {
+                                        workerInterface.isSuccessful(false);
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.d("RegisterUser",error.getLocalizedMessage());
+
+                            }
+                        }) {
                     @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("RegisterUser",error.getLocalizedMessage());
-                    }
-                }){
-                    @Override
-                    protected Map<String, String> getParams(){
+                    protected Map<String, String> getParams() {
                         Map<String, String> params = new HashMap<String, String>();
                         params.put("pat_name", patientItem.getName());
                         params.put("pat_email", patientItem.getEmail());
@@ -288,59 +353,21 @@ public class ProcessUser {
                         params.put("pat_location", patientItem.getLocation());
                         return params;
                     }
+
                 };
-
-
-//                StringRequest stringRequest = new StringRequest(Request.Method.POST, Constants.PATIENT_REGISTER_URL,
-//                        new Response.Listener<String>() {
-//                            @Override
-//                            public void onResponse(String response) {
-//                                Log.d("RegisterUser","response");
-//                                try {
-//                                    JSONArray jresponse = new JSONArray(response);
-//                                    JSONObject jsonObject = jresponse.getJSONObject(0);
-//                                    if (jsonObject.getBoolean("error"))
-//                                        processStatus(true);
-//                                    else
-//                                        processStatus(false);
-//                                } catch (JSONException e) {
-//                                    e.printStackTrace();
-//                                }
-//
-//                            }
-//                        },
-//                        new Response.ErrorListener() {
-//                            @Override
-//                            public void onErrorResponse(VolleyError error) {
-//                                Log.d("RegisterUser","response");
-//                                processStatus(false);
-//                            }
-//                        }) {
-//                    @Override
-//                    protected Map<String, String> getParams() {
-//                        Map<String, String> params = new HashMap<String, String>();
-//                        params.put("pat_name", patientItem.getName());
-//                        params.put("pat_email", patientItem.getEmail());
-//                        params.put("pat_password", patientItem.getPassword());
-//                        params.put("pat_location", patientItem.getLocation());
-//                        return params;
-//                    }
-//
-//                };
                 final RequestQueue requestQueue = Volley.newRequestQueue(context);
-                requestQueue.add(jsonObjectRequest);
+                requestQueue.add(stringRequest);
             break;
 
             case 1:
                 final DoctorItem doctorItem = (DoctorItem) mainObject;
 
-
-                JsonObjectRequest jsonObjectRequest1 = new JsonObjectRequest(Request.Method.POST, Constants.DOCTOR_REGISTER_URL, null, new Response.Listener<JSONObject>() {
+                StringRequest request = new StringRequest(Request.Method.POST, Constants.DOCTOR_REGISTER_URL, new Response.Listener<String>() {
                     @Override
-                    public void onResponse(JSONObject response) {
+                    public void onResponse(String response) {
                         Log.d("RegisterUser","response");
                         try {
-                            JSONObject jsonObject = response;
+                            JSONObject jsonObject = new JSONObject(response);
                             boolean stat = jsonObject.getBoolean("error");
                             if (!stat){
                                 sendEmailVerification();
@@ -369,9 +396,8 @@ public class ProcessUser {
                         return params;
                     }
                 };
-
                 RequestQueue requestQueue1 = Volley.newRequestQueue(context);
-                requestQueue1.add(jsonObjectRequest1);
+                requestQueue1.add(request);
 
             break;
 
@@ -406,6 +432,83 @@ public class ProcessUser {
             }
         };
         return status[0];
+    }
+
+    public List<MainObject> getAppointments(final String id){
+        final List<MainObject> mainObjectList = new ArrayList<>();
+        final RequestQueue requestQueue = Volley.newRequestQueue(context);
+        switch (type){
+            case 0:
+                String url = Constants.SHEDULE_PATIENT_GET_URL+id;
+                JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d("response appointment: ", response.toString());
+                        for (int i = 0; i <response.length(); i++){
+                            try {
+                                JSONObject object = response.getJSONObject(i);
+                                AppiontmentItem appiontmentItem = new AppiontmentItem();
+                                appiontmentItem.setAppoint_id("id");
+                                appiontmentItem.setDate(object.getString("date"));
+                                appiontmentItem.setTime(object.getString("time"));
+                                appiontmentItem.setHospital(object.getString("hospital"));
+                                appiontmentItem.setTreatment(object.getString("treatment"));
+                                appiontmentItem.setPat_id("pat_id");
+                                appiontmentItem.setDoc_id("doc_id");
+                                appiontmentItem.setStatus("status");
+                                mainObjectList.add(appiontmentItem);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+                requestQueue.add(arrayRequest);
+                return mainObjectList;
+            case 1:
+                String url1 = Constants.SHEDULE_DOCTOR_GET_URL+id;
+                JsonArrayRequest arrayRequest2 = new JsonArrayRequest(Request.Method.GET, url1, null, new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        for (int i = 0; i <response.length(); i++){
+                            try {
+                                JSONObject object = response.getJSONObject(i);
+                                DoctorAppointmentItem appiontmentItem = new DoctorAppointmentItem();
+                                appiontmentItem.setAppoint_id("id");
+                                appiontmentItem.setDate(object.getString("date"));
+                                appiontmentItem.setTime(object.getString("time"));
+                                appiontmentItem.setHospital(object.getString("hospital"));
+                                appiontmentItem.setTreatment(object.getString("treatment"));
+                                appiontmentItem.setPat_id("pat_id");
+                                appiontmentItem.setDoc_id("doc_id");
+                                appiontmentItem.setStatus("status");
+                                mainObjectList.add(appiontmentItem);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+                requestQueue.add(arrayRequest2);
+                return mainObjectList;
+            default:
+                Log.d("Unknown id", id);
+                return mainObjectList;
+        }
     }
 
 }

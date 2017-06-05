@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         setContentView(R.layout.activity_main);
 
         name = getIntent().getStringExtra("name");
-        id = getIntent().getStringExtra("Id");
+        id = getIntent().getStringExtra("id");
         type = getIntent().getIntExtra("type",0);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         if (id == R.id.action_settings) {
             return true;
         }else if (id == R.id.action_logout){
-            ProcessUser processUser = new ProcessUser(this, this);
+            ProcessUser processUser = new ProcessUser(this, this, null);
             processUser.signOutUser();
             Intent intent = new Intent(MainActivity.this, AccountActivity.class);
             startActivity(intent);
