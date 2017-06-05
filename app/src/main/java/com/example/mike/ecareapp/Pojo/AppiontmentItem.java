@@ -19,6 +19,24 @@ public class AppiontmentItem implements MainObject {
     String minute;
     String treatment;
     String status;
+    String docName;
+    String docHospital;
+
+    public String getDocName() {
+        return docName;
+    }
+
+    public void setDocName(String docName) {
+        this.docName = docName;
+    }
+
+    public String getDocHospital() {
+        return docHospital;
+    }
+
+    public void setDocHospital(String docHospital) {
+        this.docHospital = docHospital;
+    }
 
     public String getDate() {
         return date;

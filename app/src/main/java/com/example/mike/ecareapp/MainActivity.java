@@ -34,13 +34,16 @@ import com.example.mike.ecareapp.Custom.ProcessUser;
 import com.example.mike.ecareapp.Fragments.AppointmentBookingFragment;
 import com.example.mike.ecareapp.Fragments.AppointmentFragment;
 import com.example.mike.ecareapp.Fragments.DoctorAppoitmentSchedule;
+import com.example.mike.ecareapp.Fragments.DoctorsHome;
 import com.example.mike.ecareapp.Fragments.HomeFragment;
+import com.example.mike.ecareapp.Fragments.PatientsHome;
 import com.example.mike.ecareapp.Fragments.RescheduleFragment;
+import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener, AppointmentFragment.OnFragmentInteractionListener, AppointmentBookingFragment.OnFragmentInteractionListener, RescheduleFragment.OnFragmentInteractionListener, DoctorAppoitmentSchedule.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity implements PatientsHome.OnFragmentInteractionListener,DoctorsHome.OnFragmentInteractionListener, HomeFragment.OnFragmentInteractionListener, AppointmentFragment.OnFragmentInteractionListener, AppointmentBookingFragment.OnFragmentInteractionListener, RescheduleFragment.OnFragmentInteractionListener, DoctorAppoitmentSchedule.OnFragmentInteractionListener{
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide

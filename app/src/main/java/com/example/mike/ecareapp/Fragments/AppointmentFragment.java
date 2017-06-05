@@ -99,13 +99,6 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_appointment, container, false);
          recyclerView = (RecyclerView) view.findViewById(R.id.viewAppointments);
-        FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getAppointments(mParam2);
-            }
-        });
 
         getAppointments(mParam2);
 
@@ -131,7 +124,7 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
                     public void onResponse(JSONArray response) {
                         Log.d("response appointment: ", response.toString());
                         for (int i = 0; i <response.length(); i++){
-                            AppiontmentItem appiontmentItem = new AppiontmentItem();
+                            final AppiontmentItem appiontmentItem = new AppiontmentItem();
 
                             try {
                                 JSONObject object = response.getJSONObject(i);
@@ -146,7 +139,7 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-                            mainObjectList1.add(appiontmentItem);
+
 
                         }
 

@@ -15,6 +15,26 @@ public class DoctorAppointmentItem implements MainObject {
     String hour;
     String minute;
     String treatment;
+
+    String patName;
+    String patEmail;
+
+    public String getPatName() {
+        return patName;
+    }
+
+    public void setPatName(String docName) {
+        this.patName = docName;
+    }
+
+    public String getPatEmail() {
+        return patEmail;
+    }
+
+    public void setPatEmail(String docHospital) {
+        this.patEmail = docHospital;
+    }
+
     String status; public String getDate() {
         return date;
     }
