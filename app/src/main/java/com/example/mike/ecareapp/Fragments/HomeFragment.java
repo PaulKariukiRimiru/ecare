@@ -24,6 +24,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.mike.ecareapp.Adapter.MainAdapter;
 import com.example.mike.ecareapp.Custom.ProcessUser;
 import com.example.mike.ecareapp.Database.DatabaseHandler;
+import com.example.mike.ecareapp.Delegates.TestAdapter3;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.Pojo.DoctorItem;
@@ -93,21 +94,18 @@ public class HomeFragment extends Fragment implements NavigationInterface{
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
-
+    RecyclerView recyclerView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.viewHomeItems);
+         recyclerView = (RecyclerView) view.findViewById(R.id.viewHomeItems);
         hospital = (Spinner) view.findViewById(R.id.spinnerHospital);
         specialties = (Spinner) view.findViewById(R.id.spinnerSpecialty);
 
         prepareHome(mParam1);
-        mainAdapter = new MainAdapter(getContext(), mainObjectList, this );
 
-        recyclerView.setAdapter(mainAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
         return view;
     }
 
@@ -137,10 +135,11 @@ public class HomeFragment extends Fragment implements NavigationInterface{
                 break;
             case 1:
 
-                 REGISTER_URL = "https://footballticketing.000webhostapp.com/doc_shedule.php";
+                 REGISTER_URL = "https://footballticketing.000webhostapp.com/doc_shedule.php?shed_docId="+mParam2;
                  jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, REGISTER_URL, null, new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
+                        Log.d("Doctor shedule",response.toString());
                         parsePatientData(response);
                     }
                 }, new Response.ErrorListener() {
@@ -181,39 +180,49 @@ public class HomeFragment extends Fragment implements NavigationInterface{
             mainObjectList.add(doctorItem);
         }
 
-        //Notifying the adapter that data has been added or changed
-        mainAdapter.notifyDataSetChanged();
-        setMainList(mainObjectList);
+        mainAdapter = new MainAdapter(getContext(), mainObjectList, this );
+
+        recyclerView.setAdapter(mainAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
     }
 
+    List<PatientItem> patientItemList = new ArrayList<>();
     //This method will parse json data doctors patients only
-    private void parsePatientData(JSONArray array) {
+    private void parsePatientData(final JSONArray array) {
         for (int i = 0; i < array.length(); i++) {
             //Creating the superhero object
+
             JSONObject json = null;
             try {
                 //Getting json
                 json = array.getJSONObject(i);
-                final int pat_id  = json.getInt("pat_id");
+                final String pat_id  = json.getString("pat_id");
+                Log.d("patient id", pat_id);
 
 
-                String REGISTER_URL = "https://footballticketing.000webhostapp.com/patient.php";
-                JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.POST, REGISTER_URL,null,
+                String REGISTER_URL = "https://footballticketing.000webhostapp.com/patient.php?pat_id="+pat_id;
+                JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, REGISTER_URL,null,
                         new Response.Listener<JSONArray>() {
                             @Override
                             public void onResponse(JSONArray response) {
+
                                 try {
+                                    Log.d("Doctor Patient",response.toString());
                                     JSONArray array1 = response;
-                                    JSONObject object = array1.getJSONObject(0);
-                                    PatientItem patientItem = new PatientItem();
-                                    patientItem.setName(object.getString("name"));
-                                    patientItem.setEmail(object.getString("email"));
-                                    patientItem.setLocation(object.getString("location"));
-                                    mainObjectList.add(patientItem);
+                                    for (int i = 0; i < array1.length(); i++) {
+                                        final PatientItem patientItem = new PatientItem();
+                                        JSONObject object = array1.getJSONObject(i);
+                                        patientItem.setName(object.getString("name"));
+                                        patientItem.setEmail(object.getString("email"));
+                                        patientItem.setLocation(object.getString("location"));
+                                        patientItemList.add(patientItem);
+                                    }
+
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
+
                             }
                         },
                         new Response.ErrorListener() {
@@ -224,6 +233,7 @@ public class HomeFragment extends Fragment implements NavigationInterface{
                         });
                 RequestQueue requestQueue = Volley.newRequestQueue(getContext());
                 requestQueue.add(stringRequest);
+                //Notifying the adapter that data has been added or changed
 
 
             } catch (JSONException e) {
@@ -232,9 +242,9 @@ public class HomeFragment extends Fragment implements NavigationInterface{
             //Adding the superhero object to the list
         }
 
-        //Notifying the adapter that data has been added or changed
-        mainAdapter.notifyDataSetChanged();
-        setMainList(mainObjectList);
+        TestAdapter3 adapter3 = new TestAdapter3(getContext(),patientItemList);
+        recyclerView.setAdapter(adapter3);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
     }
 
     List<MainObject> mainObjectList = new ArrayList<>();

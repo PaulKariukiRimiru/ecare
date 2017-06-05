@@ -243,6 +243,7 @@ public class AppointmentBookingFragment extends DialogFragment implements View.O
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
                         Log.d("RegisterUser",error.getMessage());
                         Toast.makeText(getContext(),"error "+error.getMessage(),Toast.LENGTH_SHORT).show();
                     }

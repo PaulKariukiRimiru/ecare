@@ -20,6 +20,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.mike.ecareapp.HomeActivity;
 import com.example.mike.ecareapp.MainActivity;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
@@ -199,6 +200,7 @@ public class ProcessUser {
      * @param password
      * @param type
      * @return
+     *e
      *
      * methord to confirm user details
      */
@@ -216,65 +218,78 @@ public class ProcessUser {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
                             Log.d("Email", email);
-                            String url = Constants.PATIENT_GET_URL+email;
+                            switch (type) {
+                                case 0:
+                                    String url = Constants.PATIENT_GET_URL + email;
 
-                            StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-                                @Override
-                                public void onResponse(String response) {
-                                    try {
+                                    StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+                                            try {
 
-                                        Log.d("response", response);
-                                        JSONArray jsonObject = new JSONArray(response);
-                                        JSONObject jsonObject1 = jsonObject.getJSONObject(0);
+                                                Log.d("response", response);
+                                                JSONArray jsonObject = new JSONArray(response);
+                                                JSONObject jsonObject1 = jsonObject.getJSONObject(0);
 
-                                        Intent intent = new Intent(context, MainActivity.class);
-                                        intent.putExtra("type", type);
-                                        intent.putExtra("id", jsonObject1.getString("id"));
-                                        activity.startActivity(intent);;
-                                        activity.finish();
-                                    } catch (JSONException e) {
-                                        Log.d("Error in json", e.getLocalizedMessage());
-                                    }
-                                }
-                            }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Log.d("Error in volley", error.toString());
-                                }
-                            });
+                                                Intent intent = new Intent(context, MainActivity.class);
+                                                intent.putExtra("type", type);
+                                                intent.putExtra("id", jsonObject1.getString("id"));
+                                                activity.startActivity(intent);
+                                                ;
+                                                activity.finish();
+                                            } catch (JSONException e) {
+                                                Log.d("Error in json", e.getLocalizedMessage());
+                                            }
+                                        }
+                                    }, new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            Log.d("Error in volley", error.toString());
+                                        }
+                                    });
 
-//                            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, Constants.PATIENT_GET_URL, null, new Response.Listener<JSONObject>() {
-//                                @Override
-//                                public void onResponse(JSONObject response) {
-//
-//                                    try {
-//                                        Intent intent = new Intent(context, MainActivity.class);
-//                                        intent.putExtra("type", type);
-//                                        intent.putExtra("id", response.getString("id"));
-//                                        activity.startActivity(intent);;
-//                                        activity.finish();
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
-//
-//                                }
-//                            }, new Response.ErrorListener() {
-//                                @Override
-//                                public void onErrorResponse(VolleyError error) {
-//                                    error.printStackTrace();
-//                                }
-//                            }){
-//                                @Override
-//                                protected Map<String, String> getParams() throws AuthFailureError {
-//                                    Map<String, String> params = new HashMap<String, String>();
-//                                    params.put("pat_email", email);
-//                                    return params;
-//                                }
-//                            };
+                                    RequestQueue requestQueue = Volley.newRequestQueue(context);
+                                    requestQueue.add(stringRequest);
+                                    break;
+                                case 1:
+                                    // Sign in success, update UI with the signed-in user's information
+                                    Log.d(TAG, "signInWithEmail:success");
+                                    Log.d("Email", email);
 
-                            RequestQueue requestQueue = Volley.newRequestQueue(context);
-                            requestQueue.add(stringRequest);
+                                            String url2 = Constants.DOCTOR_GET_URL + email;
 
+                                            StringRequest stringRequest2 = new StringRequest(Request.Method.GET, url2, new Response.Listener<String>() {
+                                                @Override
+                                                public void onResponse(String response) {
+                                                    try {
+
+                                                        Log.d("response", response);
+                                                        JSONArray jsonObject = new JSONArray(response);
+                                                        JSONObject jsonObject1 = jsonObject.getJSONObject(0);
+
+                                                        Intent intent = new Intent(context, MainActivity.class);
+                                                        intent.putExtra("type", type);
+                                                        intent.putExtra("id", jsonObject1.getString("id"));
+                                                        activity.startActivity(intent);
+                                                        ;
+                                                        activity.finish();
+                                                    } catch (JSONException e) {
+                                                        Log.d("Error in json", e.getLocalizedMessage());
+                                                    }
+                                                }
+                                            }, new Response.ErrorListener() {
+                                                @Override
+                                                public void onErrorResponse(VolleyError error) {
+                                                    Log.d("Error in volley", error.toString());
+                                                }
+                                            });
+
+                                            RequestQueue requestQueue2 = Volley.newRequestQueue(context);
+                                            requestQueue2.add(stringRequest2);
+
+                                            break;
+
+                            }
 
                             //updateUI(user);
                         } else {

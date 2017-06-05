@@ -3,6 +3,7 @@ package com.example.mike.ecareapp.Fragments;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,6 +24,8 @@ import com.example.mike.ecareapp.Adapter.MainAdapter;
 import com.example.mike.ecareapp.Custom.Constants;
 import com.example.mike.ecareapp.Custom.ProcessUser;
 import com.example.mike.ecareapp.Database.DatabaseHandler;
+import com.example.mike.ecareapp.Delegates.TestAdapter;
+import com.example.mike.ecareapp.Delegates.TestAdapter2;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
@@ -56,8 +59,8 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
 
     private OnFragmentInteractionListener mListener;
 
-    List<MainObject> appointmentList;
-    MainAdapter adapter;
+    TestAdapter adapter;
+    private TestAdapter2 adapter2;
 
     public AppointmentFragment() {
         // Required empty public constructor
@@ -89,42 +92,39 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
-
+    RecyclerView recyclerView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_appointment, container, false);
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.viewAppointments);
-
-        adapter = new MainAdapter(getContext(),mainObjectList,this);
-        getAppointments(mParam2);
-
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
-
-        Button refresh = (Button) view.findViewById(R.id.btnRefresh);
-        refresh.setOnClickListener(new View.OnClickListener() {
+         recyclerView = (RecyclerView) view.findViewById(R.id.viewAppointments);
+        FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.fab);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            ProcessUser processUser1 = new ProcessUser(getContext(),mParam1);
-            appointmentList = processUser1.getAppointments(mParam2);
+                getAppointments(mParam2);
             }
         });
+
+        getAppointments(mParam2);
+
+
+
         return view;
     }
 
-    private void setMainList(List<MainObject> mainObjectList) {
+    private void setMainList(List<AppiontmentItem> mainObjectList) {
         this.mainObjectList = mainObjectList;
     }
 
-    List<MainObject> mainObjectList = new ArrayList<>();
+    List<AppiontmentItem> mainObjectList = new ArrayList<>();
     public void getAppointments(final String id){
 
         final RequestQueue requestQueue = Volley.newRequestQueue(getContext());
         switch (mParam1){
             case 0:
-                final List<MainObject> mainObjectList1 = new ArrayList<>();
+                final List<AppiontmentItem> mainObjectList1 = new ArrayList<>();
                 String url = Constants.SHEDULE_PATIENT_GET_URL+id;
                 JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
                     @Override
@@ -140,15 +140,20 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
                                 appiontmentItem.setTime(object.getString("time"));
                                 appiontmentItem.setHospital(object.getString("hospital"));
                                 appiontmentItem.setTreatment(object.getString("treatment"));
-                                appiontmentItem.setPat_id("pat_id");
-                                appiontmentItem.setDoc_id("doc_id");
-                                appiontmentItem.setStatus("status");
+                                appiontmentItem.setPat_id(object.getString("pat_id"));
+                                appiontmentItem.setDoc_id(object.getString("doc_id"));
+                                appiontmentItem.setStatus(object.getString("status"));
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
                             mainObjectList1.add(appiontmentItem);
 
                         }
+
+                        adapter = new TestAdapter(getContext(),mainObjectList1);
+
+                        recyclerView.setAdapter(adapter);
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -158,16 +163,16 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
                 });
 
                 requestQueue.add(arrayRequest);
-                adapter.notifyDataSetChanged();
                 setMainList(mainObjectList1);
                 break;
             case 1:
-                final List<MainObject> mainObjectList2 = new ArrayList<>();
+                final List<DoctorAppointmentItem> mainObjectList2 = new ArrayList<>();
 
                 String url1 = Constants.SHEDULE_DOCTOR_GET_URL+id;
                 JsonArrayRequest arrayRequest2 = new JsonArrayRequest(Request.Method.GET, url1, null, new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
+                        Log.d("DoctorAppointment", response.toString());
                         for (int i = 0; i <response.length(); i++){
                             try {
                                 JSONObject object = response.getJSONObject(i);
@@ -177,15 +182,19 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
                                 appiontmentItem.setTime(object.getString("time"));
                                 appiontmentItem.setHospital(object.getString("hospital"));
                                 appiontmentItem.setTreatment(object.getString("treatment"));
-                                appiontmentItem.setPat_id("pat_id");
-                                appiontmentItem.setDoc_id("doc_id");
-                                appiontmentItem.setStatus("status");
-                                mainObjectList.add(appiontmentItem);
+                                appiontmentItem.setPat_id(object.getString("pat_id"));
+                                appiontmentItem.setDoc_id(object.getString("doc_id"));
+                                appiontmentItem.setStatus(object.getString("status"));
+                                mainObjectList2.add(appiontmentItem);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
 
                         }
+                        adapter2 = new TestAdapter2(getContext(),mainObjectList2, AppointmentFragment.this);
+
+                        recyclerView.setAdapter(adapter2);
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -195,11 +204,15 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
                 });
 
                 requestQueue.add(arrayRequest2);
-                adapter.notifyDataSetChanged();
-                setMainList(mainObjectList2);
+                setMainList2(mainObjectList2);
+                break;
             default:
                 Log.d("Unknown id", id);
         }
+    }
+
+    private void setMainList2(List<DoctorAppointmentItem> mainObjectList2) {
+        this.mainObjectList = mainObjectList;
     }
 
     @Override

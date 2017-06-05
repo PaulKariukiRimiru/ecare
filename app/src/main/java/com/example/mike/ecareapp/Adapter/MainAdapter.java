@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
-import com.example.mike.ecareapp.Delegates.AppointmentDelegate;
 import com.example.mike.ecareapp.Delegates.DoctorAppointmentDelegate;
 import com.example.mike.ecareapp.Delegates.HomeDelegate;
 import com.example.mike.ecareapp.Delegates.PatientsAdapterDelegate;
@@ -28,7 +27,6 @@ public class MainAdapter extends RecyclerView.Adapter {
             manager = new AdapterDelegatesManager<>();
             //manager.addDelegate(new CategoriesDelegate(context, navigationInterface));
             manager.addDelegate(new HomeDelegate(context, navigationInterface));
-            manager.addDelegate(new AppointmentDelegate(context, navigationInterface));
             manager.addDelegate(new PatientsAdapterDelegate(context,navigationInterface));
             manager.addDelegate(new DoctorAppointmentDelegate(context, navigationInterface));
     }
