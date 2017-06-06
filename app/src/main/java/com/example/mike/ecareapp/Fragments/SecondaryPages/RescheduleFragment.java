@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,6 +19,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -25,11 +27,14 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mike.ecareapp.Custom.Constants;
+import com.example.mike.ecareapp.MainActivity;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.R;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -152,8 +157,8 @@ public class RescheduleFragment extends DialogFragment implements View.OnClickLi
         mListener = null;
     }
 
-    Date myDate;
-    Time mytime;
+    String myDate;
+    String mytime;
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -174,7 +179,8 @@ public class RescheduleFragment extends DialogFragment implements View.OnClickLi
                     }
                 }, mYear, mMonth, mDay);
                 datePickerDialog.show();
-                myDate = new Date(mYear,mMonth,mDay);
+
+                myDate = String.valueOf(mDay)+"/"+String.valueOf(mMonth)+"/"+String.valueOf(mYear);
 
                 break;
             case R.id.btntime:
@@ -192,27 +198,28 @@ public class RescheduleFragment extends DialogFragment implements View.OnClickLi
                     }
                 },mHour,mMinute,false);
                 timePickerDialog.show();
-                mytime = new Time(mHour,mMinute,00);
+                mytime = String.valueOf(nHour)+":"+String.valueOf(nMinute)+"00";
 
                 break;
             case R.id.btnconfirm:
                 final AppiontmentItem appiontmentItem = new AppiontmentItem();
                 appiontmentItem.setAppoint_id(mParam1);
-                appiontmentItem.setDate(myDate.toString());
-                appiontmentItem.setTime(mytime.toString());
+                appiontmentItem.setDate(myDate);
+                appiontmentItem.setTime(mytime);
                 appiontmentItem.setStatus(String.valueOf(1));
 
-                JsonObjectRequest arrayRequest = new JsonObjectRequest(Request.Method.POST, Constants.SHEDULE_UPDATE, null, new Response.Listener<JSONObject>() {
+                Log.d("Reshedule ",mParam1+myDate+mytime);
+
+                StringRequest request = new StringRequest(Request.Method.POST, Constants.SHEDULE_UPDATE, new Response.Listener<String>() {
                     @Override
-                    public void onResponse(JSONObject response) {
+                    public void onResponse(String response) {
+                        Log.d("RegisterUser","response");
                         try {
-                            boolean success = response.getBoolean("error");
-                            if (!success){
-                                Snackbar.make(view,"Appointment Confirmed",Snackbar.LENGTH_LONG).show();
+                            JSONObject jsonObject = new JSONObject(response);
+                            boolean stat = jsonObject.getBoolean("error");
+                            if (!stat){
+                                Toast.makeText(getContext(),"Succesfully updated",Toast.LENGTH_SHORT).show();
                                 dismiss();
-                            }else {
-                                Snackbar.make(view,"Appointment Confirmed Failed",Snackbar.LENGTH_LONG).show();
-                                Log.d("Error message:",response.getString("message"));
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -235,8 +242,8 @@ public class RescheduleFragment extends DialogFragment implements View.OnClickLi
                     }
                 };
 
-                RequestQueue queue = Volley.newRequestQueue(getContext());
-                queue.add(arrayRequest);
+                RequestQueue requestQueue = Volley.newRequestQueue(getContext());
+                requestQueue.add(request);
 
                 break;
         }

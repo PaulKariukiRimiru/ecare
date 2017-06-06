@@ -17,4 +17,7 @@ public class Constants {
     public static  final String SHEDULE_DOCTOR_GET_URL = "https://footballticketing.000webhostapp.com/doc_shedule.php?shed_docId=";
     public static  final String SHEDULE_UPDATE = "https://footballticketing.000webhostapp.com/updateShedule.php";
 
+    public static  final String GET_SINGLE_PATIENT = "https://footballticketing.000webhostapp.com/patient.php?pat_id=";
+
+
 }

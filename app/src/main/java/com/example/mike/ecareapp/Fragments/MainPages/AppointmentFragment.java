@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,6 +22,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.mike.ecareapp.Custom.Constants;
 import com.example.mike.ecareapp.Adapter.AppointmentAdapter;
 import com.example.mike.ecareapp.Adapter.DoctorsAppointmentAdapter;
+import com.example.mike.ecareapp.Fragments.SecondaryPages.DoctorAppoitmentSchedule;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
@@ -87,12 +89,21 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
         }
     }
     RecyclerView recyclerView;
+    SwipeRefreshLayout swipeRefreshLayout;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_appointment, container, false);
          recyclerView = (RecyclerView) view.findViewById(R.id.viewAppointments);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refreshView);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.colorAccent);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getAppointments(mParam2);
+            }
+        });
 
         getAppointments(mParam2);
 
@@ -142,6 +153,8 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
 
                         recyclerView.setAdapter(adapter);
                         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
+
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -152,6 +165,7 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
 
                 requestQueue.add(arrayRequest);
                 setMainList(mainObjectList1);
+
                 break;
             case 1:
                 final List<DoctorAppointmentItem> mainObjectList2 = new ArrayList<>();
@@ -165,7 +179,7 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
                             try {
                                 JSONObject object = response.getJSONObject(i);
                                 DoctorAppointmentItem appiontmentItem = new DoctorAppointmentItem();
-                                appiontmentItem.setAppoint_id("id");
+                                appiontmentItem.setAppoint_id(object.getString("shed_id"));
                                 appiontmentItem.setDate(object.getString("date"));
                                 appiontmentItem.setTime(object.getString("time"));
                                 appiontmentItem.setHospital(object.getString("hospital"));
@@ -183,6 +197,7 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
 
                         recyclerView.setAdapter(adapter2);
                         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 }, new Response.ErrorListener() {
                     @Override

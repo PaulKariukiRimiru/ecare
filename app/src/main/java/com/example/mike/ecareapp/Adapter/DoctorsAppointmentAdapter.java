@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.andexert.library.RippleView;
-import com.example.mike.ecareapp.Fragments.MainPages.DoctorAppoitmentSchedule;
+import com.example.mike.ecareapp.Fragments.SecondaryPages.DoctorAppoitmentSchedule;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
 import com.example.mike.ecareapp.R;
@@ -71,7 +71,7 @@ public class DoctorsAppointmentAdapter extends RecyclerView.Adapter<DoctorsAppoi
         viewHolder.rippleView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
             @Override
             public void onComplete(RippleView rippleView) {
-                DoctorAppoitmentSchedule doctorAppoitmentSchedule = DoctorAppoitmentSchedule.newInstance(appointmentItem.getAppoint_id(),"");
+                DoctorAppoitmentSchedule doctorAppoitmentSchedule = DoctorAppoitmentSchedule.newInstance(appointmentItem.getAppoint_id(),appointmentItem.getHospital(), appointmentItem.getTreatment(), appointmentItem.getPat_id(),appointmentItem.getTime(), appointmentItem.getDate());
                 navigationInterface.fragmentNavigation(doctorAppoitmentSchedule);
             }
         });

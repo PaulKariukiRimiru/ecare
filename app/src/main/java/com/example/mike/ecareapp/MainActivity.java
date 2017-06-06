@@ -25,7 +25,7 @@ import com.example.mike.ecareapp.Activities.AccountActivity;
 import com.example.mike.ecareapp.Custom.ProcessUser;
 import com.example.mike.ecareapp.Fragments.SecondaryPages.AppointmentBookingFragment;
 import com.example.mike.ecareapp.Fragments.MainPages.AppointmentFragment;
-import com.example.mike.ecareapp.Fragments.MainPages.DoctorAppoitmentSchedule;
+import com.example.mike.ecareapp.Fragments.SecondaryPages.DoctorAppoitmentSchedule;
 import com.example.mike.ecareapp.Fragments.MainPages.DoctorsHome;
 import com.example.mike.ecareapp.Fragments.MainPages.HomeFragment;
 import com.example.mike.ecareapp.Fragments.MainPages.PatientsHome;

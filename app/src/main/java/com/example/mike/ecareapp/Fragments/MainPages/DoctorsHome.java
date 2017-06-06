@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -84,6 +85,7 @@ public class DoctorsHome extends Fragment implements NavigationInterface{
     }
     RecyclerView recyclerView;
     Spinner hospital, specialties;
+    SwipeRefreshLayout swipeRefreshLayout;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -92,6 +94,15 @@ public class DoctorsHome extends Fragment implements NavigationInterface{
         recyclerView = (RecyclerView) view.findViewById(R.id.viewHomeItems);
         hospital = (Spinner) view.findViewById(R.id.spinnerHospital);
         specialties = (Spinner) view.findViewById(R.id.spinnerSpecialty);
+         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refreshView);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.colorAccent);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mainObjectList.clear();
+                prepareObjects();
+            }
+        });
 
         prepareObjects();
 
@@ -140,6 +151,7 @@ public class DoctorsHome extends Fragment implements NavigationInterface{
         mainAdapter = new DoctorsHomeAdapter(getContext(),mainObjectList);
         recyclerView.setAdapter(mainAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
+        swipeRefreshLayout.setRefreshing(false);
 
     }
 

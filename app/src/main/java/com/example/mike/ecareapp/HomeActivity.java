@@ -15,7 +15,7 @@ import android.view.MenuItem;
 
 import com.example.mike.ecareapp.Fragments.SecondaryPages.AppointmentBookingFragment;
 import com.example.mike.ecareapp.Fragments.MainPages.AppointmentFragment;
-import com.example.mike.ecareapp.Fragments.MainPages.DoctorAppoitmentSchedule;
+import com.example.mike.ecareapp.Fragments.SecondaryPages.DoctorAppoitmentSchedule;
 import com.example.mike.ecareapp.Fragments.MainPages.HomeFragment;
 import com.example.mike.ecareapp.Fragments.SecondaryPages.RescheduleFragment;
 

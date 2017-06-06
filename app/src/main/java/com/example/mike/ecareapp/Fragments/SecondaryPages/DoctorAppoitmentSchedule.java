@@ -1,13 +1,15 @@
-package com.example.mike.ecareapp.Fragments.MainPages;
+package com.example.mike.ecareapp.Fragments.SecondaryPages;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +17,21 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.mike.ecareapp.Database.DatabaseHandler;
-import com.example.mike.ecareapp.Fragments.SecondaryPages.RescheduleFragment;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.mike.ecareapp.Custom.Constants;
 import com.example.mike.ecareapp.Interfaces.TransferInterface;
+import com.example.mike.ecareapp.MainActivity;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.R;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,12 +44,20 @@ import com.example.mike.ecareapp.R;
 public class DoctorAppoitmentSchedule extends DialogFragment implements TransferInterface{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ID = "id";
+    private static final String HOSPITAL = "hospital";
+    private static final String TREATMENT = "treatment";
+    private static final String PATNAME = "patname";
+    private static final String TIME = "time";
+    private static final String DATE = "date";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private String myId;
+    private String myHospital;
+    private String myTreatment;
+    private String myPatname;
+    private String myTime;
+    private String myDate;
 
     TextView time, date;
 
@@ -56,59 +76,90 @@ public class DoctorAppoitmentSchedule extends DialogFragment implements Transfer
      * @return A new instance of fragment DoctorAppoitmentSchedule.
      */
     // TODO: Rename and change types and number of parameters
-    public static DoctorAppoitmentSchedule newInstance(String param1, String param2) {
+    public static DoctorAppoitmentSchedule newInstance(String param1, String param2, String treatment, String patname, String time, String date) {
         DoctorAppoitmentSchedule fragment = new DoctorAppoitmentSchedule();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ID, param1);
+        args.putString(HOSPITAL, param2);
+        args.putString(TREATMENT, treatment);
+        args.putString(PATNAME,patname);
+        args.putString(TIME, time);
+        args.putString(DATE, date);
         fragment.setArguments(args);
         return fragment;
     }
 
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Dialog dialog =  super.onCreateDialog(savedInstanceState);
-        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        return dialog;
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            myId = getArguments().getString(ID);
+            myHospital = getArguments().getString(HOSPITAL);
+            myTreatment = getArguments().getString(TREATMENT);
+            myTime = getArguments().getString(TIME);
+            myPatname = getArguments().getString(PATNAME);
+            myDate = getArguments().getString(DATE);
         }
     }
 
+    AppiontmentItem appiontmentItem;
+    String patname;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_doctor_appoitment_schedule, container, false);
+        appiontmentItem = new AppiontmentItem();
 
-        final DatabaseHandler handler = new DatabaseHandler(getContext());
-        final AppiontmentItem appiontmentItem = handler.getAppointment(mParam1);
-        TextView name = (TextView) view.findViewById(R.id.tvname);
-        TextView hospital = (TextView) view.findViewById(R.id.tvHospital);
-        TextView treatment = (TextView) view.findViewById(R.id.tvtreatment);
+        final TextView name = (TextView) view.findViewById(R.id.tvname);
+        final TextView hospital = (TextView) view.findViewById(R.id.tvHospital);
+        final TextView treatment = (TextView) view.findViewById(R.id.tvtreatment);
         date = (TextView) view.findViewById(R.id.tvdate);
         time = (TextView) view.findViewById(R.id.tvtime);
 
-        hospital.setText(appiontmentItem.getHospital());
-        treatment.setText(appiontmentItem.getTreatment());
-        date.setText(appiontmentItem.getDate());
-        time.setText(appiontmentItem.getTime());
-        name.setText(handler.getPatient(appiontmentItem.getPat_id()).getName());
+        String url = Constants.PATIENT_GET_URL + myPatname;
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+
+                    Log.d("response", response);
+                    JSONArray jsonObject = new JSONArray(response);
+                    JSONObject jsonObject1 = jsonObject.getJSONObject(0);
+                    patname = jsonObject1.getString("name");
+                    hospital.setText(myHospital);
+                    treatment.setText(myTreatment);
+                    date.setText(myDate);
+                    time.setText(myTime);
+                    name.setText(myPatname);
+
+                } catch (JSONException e) {
+                    Log.d("Error in json", e.getLocalizedMessage());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Error in volley", error.toString());
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
+        requestQueue.add(stringRequest);
+
+
 
         Button reschedule = (Button) view.findViewById(R.id.btnreschedule);
         Button confirm = (Button) view.findViewById(R.id.btnconfirm);
         reschedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("DoctorAppointmentFrag",myId);
                 FragmentManager manager = getFragmentManager();
-                RescheduleFragment fragment = RescheduleFragment.newInstance(mParam1,"");
+                RescheduleFragment fragment = RescheduleFragment.newInstance(myId,"");
                 fragment.show(manager,"Reschedule");
                 dismiss();
             }
@@ -117,8 +168,8 @@ public class DoctorAppoitmentSchedule extends DialogFragment implements Transfer
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                appiontmentItem.setStatus("1");
 
+                appiontmentItem.setStatus("1");
                 dismiss();
             }
         });

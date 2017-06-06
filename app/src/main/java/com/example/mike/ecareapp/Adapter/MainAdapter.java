@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
-import com.example.mike.ecareapp.Delegates.DoctorAppointmentDelegate;
 import com.example.mike.ecareapp.Delegates.HomeDelegate;
 import com.example.mike.ecareapp.Delegates.PatientsAdapterDelegate;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;

@@ -227,7 +227,7 @@ public class ProcessUser {
                                         public void onResponse(String response) {
                                             try {
 
-                                                Log.d("response", response);
+                                                Log.d("patient response", response);
                                                 JSONArray jsonObject = new JSONArray(response);
                                                 JSONObject jsonObject1 = jsonObject.getJSONObject(0);
 

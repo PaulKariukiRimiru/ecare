@@ -4,6 +4,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,6 +21,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mike.ecareapp.Adapter.PatientsHomeAdapter;
+import com.example.mike.ecareapp.Fragments.SecondaryPages.AppointmentBookingFragment;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.DoctorItem;
 import com.example.mike.ecareapp.R;
@@ -82,6 +85,8 @@ public class PatientsHome extends Fragment implements NavigationInterface{
     }
     RecyclerView recyclerView;
     Spinner hospital, specialties;
+    SwipeRefreshLayout swipeRefreshLayout;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -91,7 +96,15 @@ public class PatientsHome extends Fragment implements NavigationInterface{
         recyclerView = (RecyclerView) view.findViewById(R.id.viewHomeItems);
         hospital = (Spinner) view.findViewById(R.id.spinnerHospital);
         specialties = (Spinner) view.findViewById(R.id.spinnerSpecialty);
-
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refreshView);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.colorAccent);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mainObjectList.clear();
+                prepareObjects();
+            }
+        });
         prepareObjects();
 
         return view;
@@ -147,6 +160,7 @@ public class PatientsHome extends Fragment implements NavigationInterface{
         mainAdapter = new PatientsHomeAdapter(getContext(),mainObjectList,this);
         recyclerView.setAdapter(mainAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -175,7 +189,9 @@ public class PatientsHome extends Fragment implements NavigationInterface{
 
     @Override
     public void fragmentNavigation(Fragment fragment) {
-
+        FragmentManager manager = getFragmentManager();
+        AppointmentBookingFragment appointmentBookingFragment = (AppointmentBookingFragment) fragment;
+        appointmentBookingFragment.show(manager,"Appointments");
     }
 
     /**
