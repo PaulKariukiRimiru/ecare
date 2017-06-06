@@ -1,39 +1,45 @@
-package com.example.mike.ecareapp.Fragments;
+package com.example.mike.ecareapp.Fragments.MainPages;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Spinner;
 
+import com.example.mike.ecareapp.Adapter.MainAdapter;
+import com.example.mike.ecareapp.Fragments.SecondaryPages.AppointmentBookingFragment;
+import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.R;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link WelcomeFragment.OnFragmentInteractionListener} interface
+ * {@link HomeFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link WelcomeFragment#newInstance} factory method to
+ * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class WelcomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements NavigationInterface{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
+    private int mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    Spinner hospital, specialties;
 
-    public WelcomeFragment() {
+    private OnFragmentInteractionListener mListener;
+    private MainAdapter mainAdapter;
+
+    public HomeFragment() {
         // Required empty public constructor
     }
 
@@ -43,13 +49,13 @@ public class WelcomeFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment WelcomeFragment.
+     * @return A new instance of fragment HomeFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static WelcomeFragment newInstance(String param1, String param2) {
-        WelcomeFragment fragment = new WelcomeFragment();
+    public static HomeFragment newInstance(int param1, String param2) {
+        HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
+        args.putInt(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
@@ -59,46 +65,44 @@ public class WelcomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam1 = getArguments().getInt(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_welcome, container, false);
-        AppCompatButton patient = (AppCompatButton) view.findViewById(R.id.btnpatient);
-        AppCompatButton doctor = (AppCompatButton) view.findViewById(R.id.btndoctor);
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        patient.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Fragment register = LoginFragment.newInstance(R.drawable.patient,0);
+        switch (mParam1){
+            case 0:
+                Fragment patients = PatientsHome.newInstance("","");
                 FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
-                transaction1.replace(R.id.fragment,register);
+                transaction1.replace(R.id.fragment,patients);
                 transaction1.addToBackStack(null);
                 transaction1.commit();
-            }
-        });
+                break;
+            case 1:
+                Fragment doctors = DoctorsHome.newInstance("",mParam2);
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment,doctors);
+                transaction.addToBackStack(null);
+                transaction.commit();
+                break;
+        }
 
-        doctor.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Fragment register = LoginFragment.newInstance(R.drawable.doctor,1);
-                FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
-                transaction1.replace(R.id.fragment,register);
-                transaction1.addToBackStack(null);
-                transaction1.commit();
-            }
-        });
 
         return view;
     }
 
+
+
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
     }
 
     @Override
@@ -118,6 +122,15 @@ public class WelcomeFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void fragmentNavigation(Fragment fragment) {
+        FragmentManager manager = getFragmentManager();
+        AppointmentBookingFragment appointmentBookingFragment = (AppointmentBookingFragment) fragment;
+        appointmentBookingFragment.show(manager,"Appointments");
+    }
+
+
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -132,4 +145,6 @@ public class WelcomeFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+
 }

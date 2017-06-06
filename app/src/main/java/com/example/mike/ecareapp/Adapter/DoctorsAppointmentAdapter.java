@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.andexert.library.RippleView;
-import com.example.mike.ecareapp.Fragments.DoctorAppoitmentSchedule;
+import com.example.mike.ecareapp.Fragments.MainPages.DoctorAppoitmentSchedule;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
 import com.example.mike.ecareapp.R;

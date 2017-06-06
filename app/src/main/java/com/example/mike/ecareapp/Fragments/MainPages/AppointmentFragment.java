@@ -1,4 +1,4 @@
-package com.example.mike.ecareapp.Fragments;
+package com.example.mike.ecareapp.Fragments.MainPages;
 
 import android.content.Context;
 import android.net.Uri;

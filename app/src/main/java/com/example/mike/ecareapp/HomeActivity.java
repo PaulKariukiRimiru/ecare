@@ -2,11 +2,8 @@ package com.example.mike.ecareapp;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,12 +13,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.mike.ecareapp.Fragments.AppointmentBookingFragment;
-import com.example.mike.ecareapp.Fragments.AppointmentFragment;
-import com.example.mike.ecareapp.Fragments.DoctorAppoitmentSchedule;
-import com.example.mike.ecareapp.Fragments.HomeFragment;
-import com.example.mike.ecareapp.Fragments.RescheduleFragment;
-import com.example.mike.ecareapp.Fragments.WelcomeFragment;
+import com.example.mike.ecareapp.Fragments.SecondaryPages.AppointmentBookingFragment;
+import com.example.mike.ecareapp.Fragments.MainPages.AppointmentFragment;
+import com.example.mike.ecareapp.Fragments.MainPages.DoctorAppoitmentSchedule;
+import com.example.mike.ecareapp.Fragments.MainPages.HomeFragment;
+import com.example.mike.ecareapp.Fragments.SecondaryPages.RescheduleFragment;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener ,HomeFragment.OnFragmentInteractionListener, AppointmentFragment.OnFragmentInteractionListener, AppointmentBookingFragment.OnFragmentInteractionListener, RescheduleFragment.OnFragmentInteractionListener, DoctorAppoitmentSchedule.OnFragmentInteractionListener{

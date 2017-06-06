@@ -7,10 +7,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import com.example.mike.ecareapp.Fragments.DoctorsRegisterFragment;
-import com.example.mike.ecareapp.Fragments.LoginFragment;
-import com.example.mike.ecareapp.Fragments.RegisterFragment;
-import com.example.mike.ecareapp.Fragments.WelcomeFragment;
+import com.example.mike.ecareapp.Fragments.MainPages.DoctorsRegisterFragment;
+import com.example.mike.ecareapp.Fragments.MainPages.LoginFragment;
+import com.example.mike.ecareapp.Fragments.MainPages.RegisterFragment;
+import com.example.mike.ecareapp.Fragments.SecondaryPages.WelcomeFragment;
 import com.example.mike.ecareapp.R;
 
 public class AccountActivity extends AppCompatActivity implements LoginFragment.OnFragmentInteractionListener, RegisterFragment.OnFragmentInteractionListener, WelcomeFragment.OnFragmentInteractionListener, DoctorsRegisterFragment.OnFragmentInteractionListener{

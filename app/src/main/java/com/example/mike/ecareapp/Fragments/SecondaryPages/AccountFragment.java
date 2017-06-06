@@ -1,4 +1,4 @@
-package com.example.mike.ecareapp.Fragments;
+package com.example.mike.ecareapp.Fragments.SecondaryPages;
 
 import android.support.v4.app.Fragment;
 import android.os.Bundle;

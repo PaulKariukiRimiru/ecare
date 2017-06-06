@@ -10,12 +10,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.andexert.library.RippleView;
-import com.example.mike.ecareapp.Database.DatabaseHandler;
-import com.example.mike.ecareapp.Fragments.DoctorAppoitmentSchedule;
+import com.example.mike.ecareapp.Fragments.MainPages.DoctorAppoitmentSchedule;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
-import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
-import com.example.mike.ecareapp.Pojo.DoctorItem;
 import com.example.mike.ecareapp.Pojo.MainObject;
 import com.example.mike.ecareapp.R;
 import com.hannesdorfmann.adapterdelegates3.AdapterDelegate;

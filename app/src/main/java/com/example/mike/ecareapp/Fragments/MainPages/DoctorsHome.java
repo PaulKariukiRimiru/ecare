@@ -1,4 +1,4 @@
-package com.example.mike.ecareapp.Fragments;
+package com.example.mike.ecareapp.Fragments.MainPages;
 
 import android.content.Context;
 import android.net.Uri;
@@ -18,9 +18,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.mike.ecareapp.Adapter.PatientsHomeAdapter;
+import com.example.mike.ecareapp.Adapter.DoctorsHomeAdapter;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
-import com.example.mike.ecareapp.Pojo.DoctorItem;
+import com.example.mike.ecareapp.Pojo.PatientItem;
 import com.example.mike.ecareapp.R;
 
 import org.json.JSONArray;
@@ -33,12 +33,12 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link PatientsHome.OnFragmentInteractionListener} interface
+ * {@link DoctorsHome.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link PatientsHome#newInstance} factory method to
+ * Use the {@link DoctorsHome#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PatientsHome extends Fragment implements NavigationInterface{
+public class DoctorsHome extends Fragment implements NavigationInterface{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -49,8 +49,10 @@ public class PatientsHome extends Fragment implements NavigationInterface{
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private List<PatientItem> mainObjectList = new ArrayList<>();
+    private DoctorsHomeAdapter mainAdapter;
 
-    public PatientsHome() {
+    public DoctorsHome() {
         // Required empty public constructor
     }
 
@@ -60,11 +62,11 @@ public class PatientsHome extends Fragment implements NavigationInterface{
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment PatientsHome.
+     * @return A new instance of fragment DoctorsHome.
      */
     // TODO: Rename and change types and number of parameters
-    public static PatientsHome newInstance(String param1, String param2) {
-        PatientsHome fragment = new PatientsHome();
+    public static DoctorsHome newInstance(String param1, String param2) {
+        DoctorsHome fragment = new DoctorsHome();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -86,8 +88,7 @@ public class PatientsHome extends Fragment implements NavigationInterface{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_patients_home, container, false);
-
+        View view =inflater.inflate(R.layout.fragment_doctors_home, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.viewHomeItems);
         hospital = (Spinner) view.findViewById(R.id.spinnerHospital);
         specialties = (Spinner) view.findViewById(R.id.spinnerSpecialty);
@@ -98,55 +99,48 @@ public class PatientsHome extends Fragment implements NavigationInterface{
     }
 
     private void prepareObjects() {
-        String REGISTER_URL = "https://footballticketing.000webhostapp.com/doctor.php";
-
+        String REGISTER_URL = "https://footballticketing.000webhostapp.com/doctor_patients.php?shed_docId="+mParam2;
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, REGISTER_URL, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                Log.d("prepareHome: ", response.toString());
-                parseDoctorData(response);
+                Log.d("Doctor shedule",response.toString());
+                parsePatientData(response);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("prepareHome: ", error.toString());
+
             }
         });
-
-
         RequestQueue requestQueue = Volley.newRequestQueue(getContext());
         requestQueue.add(jsonArrayRequest);
     }
 
-    List<DoctorItem> mainObjectList = new ArrayList<>();
 
-    PatientsHomeAdapter mainAdapter;
-
-    //This method will parse json data
-    private void parseDoctorData(JSONArray array) {
+    //This method will parse json data doctors patients only
+    private void parsePatientData(final JSONArray array) {
         for (int i = 0; i < array.length(); i++) {
             //Creating the superhero object
-            DoctorItem doctorItem = new DoctorItem();
+            PatientItem patientItem = new PatientItem();
             JSONObject json = null;
             try {
                 //Getting json
                 json = array.getJSONObject(i);
-                doctorItem.setDoc_id(json.getString("id"));
-                doctorItem.setName(json.getString("name"));
-                doctorItem.setEmail(json.getString("email"));
-                doctorItem.setPassword(json.getString("password"));
-                doctorItem.setHospital(json.getString("hospital"));
-                doctorItem.setSpecialty(json.getString("specialty"));
+                patientItem.setLocation(json.getString("location"));
+                patientItem.setName(json.getString("name"));
+                patientItem.setEmail(json.getString("email"));
+                patientItem.setPat_id(json.getString("id"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             //Adding the superhero object to the list
-            mainObjectList.add(doctorItem);
+            mainObjectList.add(patientItem);
         }
 
-        mainAdapter = new PatientsHomeAdapter(getContext(),mainObjectList,this);
+        mainAdapter = new DoctorsHomeAdapter(getContext(),mainObjectList);
         recyclerView.setAdapter(mainAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event

@@ -1,10 +1,9 @@
-package com.example.mike.ecareapp.Fragments;
+package com.example.mike.ecareapp.Fragments.SecondaryPages;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,16 +24,12 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mike.ecareapp.Custom.Constants;
-import com.example.mike.ecareapp.Database.DatabaseHandler;
-import com.example.mike.ecareapp.Interfaces.TransferInterface;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.R;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 

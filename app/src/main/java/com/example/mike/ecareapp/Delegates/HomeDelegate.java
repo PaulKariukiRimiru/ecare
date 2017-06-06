@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.andexert.library.RippleView;
-import com.example.mike.ecareapp.Fragments.AppointmentBookingFragment;
+import com.example.mike.ecareapp.Fragments.SecondaryPages.AppointmentBookingFragment;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.DoctorItem;
 import com.example.mike.ecareapp.Pojo.MainObject;

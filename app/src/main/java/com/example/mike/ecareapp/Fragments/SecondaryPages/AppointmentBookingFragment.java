@@ -1,4 +1,4 @@
-package com.example.mike.ecareapp.Fragments;
+package com.example.mike.ecareapp.Fragments.SecondaryPages;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;

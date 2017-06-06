@@ -1,60 +1,57 @@
-package com.example.mike.ecareapp.Fragments;
+package com.example.mike.ecareapp.Fragments.MainPages;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.BoolRes;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.AppCompatSpinner;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.example.mike.ecareapp.Custom.ProcessUser;
 import com.example.mike.ecareapp.Custom.WorkerInterface;
-import com.example.mike.ecareapp.Database.DatabaseHandler;
-import com.example.mike.ecareapp.MainActivity;
-import com.example.mike.ecareapp.Pojo.DoctorItem;
 import com.example.mike.ecareapp.Pojo.MainObject;
 import com.example.mike.ecareapp.Pojo.PatientItem;
 import com.example.mike.ecareapp.R;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link DoctorsRegisterFragment.OnFragmentInteractionListener} interface
+ * {@link RegisterFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link DoctorsRegisterFragment#newInstance} factory method to
+ * Use the {@link RegisterFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DoctorsRegisterFragment extends Fragment implements WorkerInterface{
+public class RegisterFragment extends Fragment implements WorkerInterface{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private static final String REGISTER_URL = "https://footballticketing.000webhostapp.com/doctor_insert.php";
 
     // TODO: Rename and change types of parameters
     private int mParam1;
     private int mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
-    public DoctorsRegisterFragment() {
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference myRef = database.getReference("message");
+
+    //myRef.setValue("Hello, World!");
+
+    public RegisterFragment() {
         // Required empty public constructor
     }
 
@@ -64,11 +61,11 @@ public class DoctorsRegisterFragment extends Fragment implements WorkerInterface
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment DoctorsRegisterFragment.
+     * @return A new instance of fragment RegisterFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static DoctorsRegisterFragment newInstance(int param1, int param2) {
-        DoctorsRegisterFragment fragment = new DoctorsRegisterFragment();
+    public static RegisterFragment newInstance(int param1, int param2) {
+        RegisterFragment fragment = new RegisterFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_PARAM1, param1);
         args.putInt(ARG_PARAM2, param2);
@@ -83,32 +80,29 @@ public class DoctorsRegisterFragment extends Fragment implements WorkerInterface
             mParam1 = getArguments().getInt(ARG_PARAM1);
             mParam2 = getArguments().getInt(ARG_PARAM2);
         }
+        mAuth = FirebaseAuth.getInstance();
     }
 
     TextInputEditText name, email, password;
-
-    android.support.v7.widget.AppCompatSpinner hospital_spinner, specialty_spinner;;
+    AppCompatSpinner locationSpinner;
     View view;
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        view  = inflater.inflate(R.layout.fragment_doctors_register, container, false);
+        view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        name  = (TextInputEditText) view.findViewById(R.id.edNames);
+        name = (TextInputEditText) view.findViewById(R.id.edNames);
         email = (TextInputEditText) view.findViewById(R.id.edEmail);
         password = (TextInputEditText) view.findViewById(R.id.edPassword);
-
-        hospital_spinner = (android.support.v7.widget.AppCompatSpinner) view.findViewById(R.id.spinnerHospital);
-        specialty_spinner = (android.support.v7.widget.AppCompatSpinner) view.findViewById(R.id.spinnerSpecialty);
+        locationSpinner = (AppCompatSpinner) view.findViewById(R.id.location_spinner);
 
         android.support.v7.widget.AppCompatTextView signin = (android.support.v7.widget.AppCompatTextView) view.findViewById(R.id.tvSignIn);
 
         signin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Fragment login = LoginFragment.newInstance(mParam1,mParam2);
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragment,login);
@@ -123,20 +117,40 @@ public class DoctorsRegisterFragment extends Fragment implements WorkerInterface
             public void onClick(View v) {
 
                 if (validateForm()){
-                        DoctorItem doctorItem = new DoctorItem();
-                        doctorItem.setName(name.getText().toString());
-                        doctorItem.setEmail(email.getText().toString());
-                        doctorItem.setPassword(password.getText().toString());
-                        doctorItem.setHospital(hospital_spinner.getSelectedItem().toString());
-                        doctorItem.setSpecialty(specialty_spinner.getSelectedItem().toString());
-                    registerUser(doctorItem);
 
+                    PatientItem patientItem = new PatientItem();
+                    patientItem.setName(name.getText().toString());
+                    patientItem.setEmail(email.getText().toString());
+                    patientItem.setPassword(password.getText().toString());
+                    patientItem.setLocation(locationSpinner.getSelectedItem().toString());
+
+                    Log.d("item",name.getText().toString()+email.getText().toString()+password.getText().toString()+locationSpinner.getSelectedItem().toString());
+
+                    registerUser(patientItem);
+                    if (status){
+                        Fragment login = LoginFragment.newInstance(mParam1,mParam2);
+                        FragmentTransaction transaction1 = getFragmentManager().beginTransaction();
+                        transaction1.replace(R.id.fragment,login);
+                        transaction1.addToBackStack(null);
+                        transaction1.commit();
+                    }
+                }else
+                    Snackbar.make(v,"Fill the form and try again",Snackbar.LENGTH_SHORT).show();
+
+                try {
+                    super.finalize();
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
                 }
             }
         });
 
         return view;
     }
+
+
+
+
 
     private boolean validateForm() {
         boolean valid = true;
@@ -165,6 +179,10 @@ public class DoctorsRegisterFragment extends Fragment implements WorkerInterface
     private void registerUser(MainObject object){
         ProcessUser processUser = new ProcessUser(getContext(), getActivity(), this);
         processUser.createFirebaseUser(object);
+    }
+    Boolean status = false;
+    private void setProgStatus(Boolean status){
+        this.status = status;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
