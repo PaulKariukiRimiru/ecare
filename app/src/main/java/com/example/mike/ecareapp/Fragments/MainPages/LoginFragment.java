@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import com.example.mike.ecareapp.Custom.ProcessUser;
 import com.example.mike.ecareapp.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.qintong.library.InsLoadingView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -77,6 +78,7 @@ public class LoginFragment extends Fragment {
 
     TextInputEditText email, passs;
      ProcessUser processUser;
+    InsLoadingView loadingView;
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
@@ -87,6 +89,8 @@ public class LoginFragment extends Fragment {
 
         email = (TextInputEditText) view.findViewById(R.id.edEmail);
         passs = (TextInputEditText) view.findViewById(R.id.edPassword);
+        loadingView = (InsLoadingView) view.findViewById(R.id.loading_view);
+        loadingView.setVisibility(View.INVISIBLE);
 
         ImageView imageView = (ImageView) view.findViewById(R.id.imgLogin);
         imageView.setImageResource(mParam1);
@@ -94,7 +98,6 @@ public class LoginFragment extends Fragment {
         AppCompatButton signin = (AppCompatButton) view.findViewById(R.id.btnSignIn);
 
         AppCompatTextView signup = (AppCompatTextView) view.findViewById(R.id.tvSignUp);
-
 
 
         signup.setOnClickListener(new View.OnClickListener() {
@@ -127,7 +130,8 @@ public class LoginFragment extends Fragment {
             public void onClick(View v) {
                 if (!email.getText().toString().isEmpty() && !passs.getText().toString().isEmpty()) {
                     ProcessUser processUser = new ProcessUser(getContext(), getActivity(), mParam2);
-                    boolean stat = processUser.confirmDetails(email.getText().toString(),passs.getText().toString());
+                    loadingView.setVisibility(View.VISIBLE);
+                    boolean stat = processUser.confirmDetails(email.getText().toString(),passs.getText().toString(), loadingView);
 
                 }else {
                     Snackbar.make(view, "Please ensure that you have written both your email and password", Snackbar.LENGTH_SHORT).show();

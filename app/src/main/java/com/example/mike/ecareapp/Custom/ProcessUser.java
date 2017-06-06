@@ -32,6 +32,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.qintong.library.InsLoadingView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -105,9 +106,10 @@ public class ProcessUser {
      * @param mainObject
      *
      * methord to create firebase user
+     * @param loadingView
      */
 
-    public void createFirebaseUser(MainObject mainObject){
+    public void createFirebaseUser(MainObject mainObject, final InsLoadingView loadingView){
         this.mainObject = mainObject;
         Log.d("createFirebaaseUser: ","Start of methord");
         // [START create_user_with_email]
@@ -121,7 +123,7 @@ public class ProcessUser {
                                 if (task.isSuccessful()) {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "createUserWithEmail:success");
-                                    registerUser();
+                                    registerUser(loadingView);
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -146,7 +148,7 @@ public class ProcessUser {
                                 if (task.isSuccessful()) {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "createUserWithEmail:success");
-                                    registerUser();
+                                    registerUser(loadingView);
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -196,16 +198,17 @@ public class ProcessUser {
 
     /**
      *
+     * @param type
      * @param email
      * @param password
-     * @param type
+     * @param loadingView
      * @return
      *e
      *
      * methord to confirm user details
      */
 
-    public boolean confirmDetails(final String email, String password){
+    public boolean confirmDetails(final String email, String password, final InsLoadingView loadingView){
         Log.d(TAG, "signIn:" + email);
         final boolean[] status = new boolean[1];
         //showProgressDialog();
@@ -230,6 +233,8 @@ public class ProcessUser {
                                                 Log.d("patient response", response);
                                                 JSONArray jsonObject = new JSONArray(response);
                                                 JSONObject jsonObject1 = jsonObject.getJSONObject(0);
+
+                                                loadingView.setVisibility(View.INVISIBLE);
 
                                                 Intent intent = new Intent(context, MainActivity.class);
                                                 intent.putExtra("type", type);
@@ -266,6 +271,8 @@ public class ProcessUser {
                                                         Log.d("response", response);
                                                         JSONArray jsonObject = new JSONArray(response);
                                                         JSONObject jsonObject1 = jsonObject.getJSONObject(0);
+
+                                                        loadingView.setVisibility(View.INVISIBLE);
 
                                                         Intent intent = new Intent(context, MainActivity.class);
                                                         intent.putExtra("type", type);
@@ -325,7 +332,7 @@ public class ProcessUser {
         return id;
     }
 
-    private void registerUser(){
+    private void registerUser(final InsLoadingView loadingView){
 
         switch (userType(mainObject)) {
             case 0:
@@ -343,8 +350,11 @@ public class ProcessUser {
                                     boolean stat = jsonObject.getBoolean("error");
                                     if (!stat){
                                         sendEmailVerification();
+                                        loadingView.setVisibility(View.INVISIBLE);
                                         workerInterface.isSuccessful(true);
+
                                     }else {
+                                        loadingView.setVisibility(View.INVISIBLE);
                                         workerInterface.isSuccessful(false);
                                     }
                                 } catch (JSONException e) {
@@ -387,7 +397,9 @@ public class ProcessUser {
                             if (!stat){
                                 sendEmailVerification();
                                 workerInterface.isSuccessful(true);
+                                loadingView.setVisibility(View.INVISIBLE);
                             }else {
+                                loadingView.setVisibility(View.INVISIBLE);
                                 workerInterface.isSuccessful(false);
                             }
                         } catch (JSONException e) {

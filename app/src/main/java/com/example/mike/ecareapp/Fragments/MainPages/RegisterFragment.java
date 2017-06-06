@@ -23,6 +23,7 @@ import com.example.mike.ecareapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.qintong.library.InsLoadingView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -86,6 +87,7 @@ public class RegisterFragment extends Fragment implements WorkerInterface{
     TextInputEditText name, email, password;
     AppCompatSpinner locationSpinner;
     View view;
+    InsLoadingView loadingView;
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
@@ -97,7 +99,8 @@ public class RegisterFragment extends Fragment implements WorkerInterface{
         email = (TextInputEditText) view.findViewById(R.id.edEmail);
         password = (TextInputEditText) view.findViewById(R.id.edPassword);
         locationSpinner = (AppCompatSpinner) view.findViewById(R.id.location_spinner);
-
+        loadingView = (InsLoadingView) view.findViewById(R.id.loading_view);
+        loadingView.setVisibility(View.INVISIBLE);
         android.support.v7.widget.AppCompatTextView signin = (android.support.v7.widget.AppCompatTextView) view.findViewById(R.id.tvSignIn);
 
         signin.setOnClickListener(new View.OnClickListener() {
@@ -177,8 +180,9 @@ public class RegisterFragment extends Fragment implements WorkerInterface{
 
 
     private void registerUser(MainObject object){
+        loadingView.setVisibility(View.VISIBLE);
         ProcessUser processUser = new ProcessUser(getContext(), getActivity(), this);
-        processUser.createFirebaseUser(object);
+        processUser.createFirebaseUser(object, loadingView);
     }
     Boolean status = false;
     private void setProgStatus(Boolean status){

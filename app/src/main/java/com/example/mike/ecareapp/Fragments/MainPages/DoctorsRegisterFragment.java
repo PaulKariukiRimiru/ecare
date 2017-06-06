@@ -18,6 +18,7 @@ import com.example.mike.ecareapp.Custom.WorkerInterface;
 import com.example.mike.ecareapp.Pojo.DoctorItem;
 import com.example.mike.ecareapp.Pojo.MainObject;
 import com.example.mike.ecareapp.R;
+import com.qintong.library.InsLoadingView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -72,6 +73,7 @@ public class DoctorsRegisterFragment extends Fragment implements WorkerInterface
     }
 
     TextInputEditText name, email, password;
+    InsLoadingView loadingView;
 
     android.support.v7.widget.AppCompatSpinner hospital_spinner, specialty_spinner;;
     View view;
@@ -85,6 +87,9 @@ public class DoctorsRegisterFragment extends Fragment implements WorkerInterface
         name  = (TextInputEditText) view.findViewById(R.id.edNames);
         email = (TextInputEditText) view.findViewById(R.id.edEmail);
         password = (TextInputEditText) view.findViewById(R.id.edPassword);
+
+        loadingView = (InsLoadingView) view.findViewById(R.id.loading_view);
+        loadingView.setVisibility(View.INVISIBLE);
 
         hospital_spinner = (android.support.v7.widget.AppCompatSpinner) view.findViewById(R.id.spinnerHospital);
         specialty_spinner = (android.support.v7.widget.AppCompatSpinner) view.findViewById(R.id.spinnerSpecialty);
@@ -149,8 +154,9 @@ public class DoctorsRegisterFragment extends Fragment implements WorkerInterface
 
 
     private void registerUser(MainObject object){
+        loadingView.setVisibility(View.VISIBLE);
         ProcessUser processUser = new ProcessUser(getContext(), getActivity(), this);
-        processUser.createFirebaseUser(object);
+        processUser.createFirebaseUser(object, loadingView);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
