@@ -18,10 +18,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.mike.ecareapp.Delegates.TestAdapter3;
-import com.example.mike.ecareapp.Delegates.TestAdapter4;
+import com.example.mike.ecareapp.Adapter.DoctorsHomeAdapter;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
-import com.example.mike.ecareapp.Pojo.DoctorItem;
 import com.example.mike.ecareapp.Pojo.PatientItem;
 import com.example.mike.ecareapp.R;
 
@@ -52,7 +50,7 @@ public class DoctorsHome extends Fragment implements NavigationInterface{
 
     private OnFragmentInteractionListener mListener;
     private List<PatientItem> mainObjectList = new ArrayList<>();
-    private TestAdapter3 mainAdapter;
+    private DoctorsHomeAdapter mainAdapter;
 
     public DoctorsHome() {
         // Required empty public constructor
@@ -131,7 +129,6 @@ public class DoctorsHome extends Fragment implements NavigationInterface{
                 patientItem.setLocation(json.getString("location"));
                 patientItem.setName(json.getString("name"));
                 patientItem.setEmail(json.getString("email"));
-                patientItem.setPassword(json.getString("password"));
                 patientItem.setPat_id(json.getString("id"));
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -140,7 +137,7 @@ public class DoctorsHome extends Fragment implements NavigationInterface{
             mainObjectList.add(patientItem);
         }
 
-        mainAdapter = new TestAdapter3(getContext(),mainObjectList);
+        mainAdapter = new DoctorsHomeAdapter(getContext(),mainObjectList);
         recyclerView.setAdapter(mainAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
 

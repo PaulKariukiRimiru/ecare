@@ -28,7 +28,6 @@ public class MainAdapter extends RecyclerView.Adapter {
             //manager.addDelegate(new CategoriesDelegate(context, navigationInterface));
             manager.addDelegate(new HomeDelegate(context, navigationInterface));
             manager.addDelegate(new PatientsAdapterDelegate(context,navigationInterface));
-            manager.addDelegate(new DoctorAppointmentDelegate(context, navigationInterface));
     }
 
     @Override

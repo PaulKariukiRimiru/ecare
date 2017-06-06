@@ -1,19 +1,14 @@
-package com.example.mike.ecareapp.Delegates;
+package com.example.mike.ecareapp.Adapter;
 
 import android.content.Context;
-import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.andexert.library.RippleView;
-import com.example.mike.ecareapp.Fragments.DoctorAppoitmentSchedule;
-import com.example.mike.ecareapp.Interfaces.NavigationInterface;
-import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
 import com.example.mike.ecareapp.Pojo.PatientItem;
 import com.example.mike.ecareapp.R;
 
@@ -23,26 +18,26 @@ import java.util.List;
  * Created by mike on 6/5/17.
  */
 
-public class TestAdapter3 extends RecyclerView.Adapter<TestAdapter3.MyViewHolder> {
+public class DoctorsHomeAdapter extends RecyclerView.Adapter<DoctorsHomeAdapter.MyViewHolder> {
 
     private final List<PatientItem> patientItems;
     private final LayoutInflater inflater;
     private Context context;
 
-    public TestAdapter3(Context context, List<PatientItem> patientItems){
+    public DoctorsHomeAdapter(Context context, List<PatientItem> patientItems){
         this.context = context;
         inflater = LayoutInflater.from(context);
         this.patientItems = patientItems;
     }
 
     @Override
-    public TestAdapter3.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        TestAdapter3.MyViewHolder myViewHolder = new TestAdapter3.MyViewHolder(inflater.inflate(R.layout.patientitem,parent,false));
+    public DoctorsHomeAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        DoctorsHomeAdapter.MyViewHolder myViewHolder = new DoctorsHomeAdapter.MyViewHolder(inflater.inflate(R.layout.patientitem,parent,false));
         return myViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(TestAdapter3.MyViewHolder viewHolder, int position) {
+    public void onBindViewHolder(DoctorsHomeAdapter.MyViewHolder viewHolder, int position) {
 
         PatientItem homeItem = patientItems.get(position);
         Log.d("doctor adapter",homeItem.getName());

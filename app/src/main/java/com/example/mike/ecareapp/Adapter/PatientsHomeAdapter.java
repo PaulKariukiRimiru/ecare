@@ -1,20 +1,16 @@
-package com.example.mike.ecareapp.Delegates;
+package com.example.mike.ecareapp.Adapter;
 
 import android.content.Context;
-import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.andexert.library.RippleView;
 import com.example.mike.ecareapp.Fragments.AppointmentBookingFragment;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.DoctorItem;
-import com.example.mike.ecareapp.Pojo.PatientItem;
 import com.example.mike.ecareapp.R;
 
 import java.util.List;
@@ -23,14 +19,14 @@ import java.util.List;
  * Created by mike on 6/5/17.
  */
 
-public class TestAdapter4 extends RecyclerView.Adapter<TestAdapter4.MyViewHolder> {
+public class PatientsHomeAdapter extends RecyclerView.Adapter<PatientsHomeAdapter.MyViewHolder> {
 
     private final List<DoctorItem> patientItems;
     private final LayoutInflater inflater;
     private Context context;
     NavigationInterface navigationInterface;
 
-    public TestAdapter4(Context context, List<DoctorItem> patientItems, NavigationInterface navigationInterface){
+    public PatientsHomeAdapter(Context context, List<DoctorItem> patientItems, NavigationInterface navigationInterface){
         this.context = context;
         inflater = LayoutInflater.from(context);
         this.patientItems = patientItems;
@@ -38,13 +34,13 @@ public class TestAdapter4 extends RecyclerView.Adapter<TestAdapter4.MyViewHolder
     }
 
     @Override
-    public TestAdapter4.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        TestAdapter4.MyViewHolder myViewHolder = new TestAdapter4.MyViewHolder(inflater.inflate(R.layout.homeitem,parent,false));
+    public PatientsHomeAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        PatientsHomeAdapter.MyViewHolder myViewHolder = new PatientsHomeAdapter.MyViewHolder(inflater.inflate(R.layout.homeitem,parent,false));
         return myViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(TestAdapter4.MyViewHolder viewHolder, int position) {
+    public void onBindViewHolder(PatientsHomeAdapter.MyViewHolder viewHolder, int position) {
 
         final DoctorItem homeItem = patientItems.get(position);
 

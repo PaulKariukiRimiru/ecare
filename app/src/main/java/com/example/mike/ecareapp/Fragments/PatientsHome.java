@@ -18,8 +18,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.mike.ecareapp.Adapter.MainAdapter;
-import com.example.mike.ecareapp.Delegates.TestAdapter4;
+import com.example.mike.ecareapp.Adapter.PatientsHomeAdapter;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.DoctorItem;
 import com.example.mike.ecareapp.R;
@@ -121,7 +120,7 @@ public class PatientsHome extends Fragment implements NavigationInterface{
 
     List<DoctorItem> mainObjectList = new ArrayList<>();
 
-    TestAdapter4 mainAdapter;
+    PatientsHomeAdapter mainAdapter;
 
     //This method will parse json data
     private void parseDoctorData(JSONArray array) {
@@ -145,7 +144,7 @@ public class PatientsHome extends Fragment implements NavigationInterface{
             mainObjectList.add(doctorItem);
         }
 
-        mainAdapter = new TestAdapter4(getContext(),mainObjectList,this);
+        mainAdapter = new PatientsHomeAdapter(getContext(),mainObjectList,this);
         recyclerView.setAdapter(mainAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
     }

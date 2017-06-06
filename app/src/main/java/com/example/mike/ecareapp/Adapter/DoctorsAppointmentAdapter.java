@@ -1,27 +1,18 @@
-package com.example.mike.ecareapp.Delegates;
+package com.example.mike.ecareapp.Adapter;
 
 import android.content.Context;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.andexert.library.RippleView;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
-import com.example.mike.ecareapp.Pojo.AppiontmentItem;
+import com.example.mike.ecareapp.Fragments.DoctorAppoitmentSchedule;
+import com.example.mike.ecareapp.Interfaces.NavigationInterface;
+import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
 import com.example.mike.ecareapp.R;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.List;
 
@@ -29,35 +20,35 @@ import java.util.List;
  * Created by mike on 6/5/17.
  */
 
-public class TestAdapter extends RecyclerView.Adapter<TestAdapter.MyViewHolder> {
+public class DoctorsAppointmentAdapter extends RecyclerView.Adapter<DoctorsAppointmentAdapter.MyViewHolder> {
 
-    private final List<AppiontmentItem> appointmentList;
+    private final List<DoctorAppointmentItem> appointmentList;
     private final LayoutInflater inflater;
     private Context context;
+    private NavigationInterface navigationInterface;
 
-    public TestAdapter(Context context, List<AppiontmentItem> appiontmentItemList){
+    public DoctorsAppointmentAdapter(Context context, List<DoctorAppointmentItem> appiontmentItemList, NavigationInterface navigationInterface){
         this.context = context;
         inflater = LayoutInflater.from(context);
         this.appointmentList = appiontmentItemList;
+        this.navigationInterface = navigationInterface;
     }
 
     @Override
-    public TestAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public DoctorsAppointmentAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         MyViewHolder myViewHolder = new MyViewHolder(inflater.inflate(R.layout.appointmentitem,parent,false));
         return myViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(TestAdapter.MyViewHolder viewHolder, int position) {
-        AppiontmentItem appointmentItem = appointmentList.get(position);
+    public void onBindViewHolder(DoctorsAppointmentAdapter.MyViewHolder viewHolder, int position) {
+        final DoctorAppointmentItem appointmentItem = appointmentList.get(position);
 
-        Log.d("ViewHolder", appointmentItem.getTreatment());
-
-        viewHolder.doctorName.setText(appointmentItem.getDoc_id());
-        viewHolder.hospitalName.setText(appointmentItem.getHospital());
-
+        viewHolder.patientName.setText(appointmentItem.getPat_id());
+        viewHolder.email.setText(appointmentItem.getPat_id());
         viewHolder.date.setText("On "+ appointmentItem.getDate()+ " At "+ appointmentItem.getTime());
         viewHolder.treatment.setText(appointmentItem.getTreatment());
+
 
         viewHolder.rippleView.setCentered(true);
         viewHolder.rippleView.setRippleDuration(150);
@@ -80,7 +71,8 @@ public class TestAdapter extends RecyclerView.Adapter<TestAdapter.MyViewHolder> 
         viewHolder.rippleView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
             @Override
             public void onComplete(RippleView rippleView) {
-
+                DoctorAppoitmentSchedule doctorAppoitmentSchedule = DoctorAppoitmentSchedule.newInstance(appointmentItem.getAppoint_id(),"");
+                navigationInterface.fragmentNavigation(doctorAppoitmentSchedule);
             }
         });
     }
@@ -93,20 +85,19 @@ public class TestAdapter extends RecyclerView.Adapter<TestAdapter.MyViewHolder> 
      class MyViewHolder extends RecyclerView.ViewHolder{
 
          LinearLayout statusShow, statusIndicator;
-         AppCompatTextView doctorName, hospitalName, date, treatment, status;
+         AppCompatTextView patientName, email, date, treatment, status;
          RippleView rippleView;
-
          public MyViewHolder(View itemView) {
              super(itemView);
-
              statusShow = (LinearLayout) itemView.findViewById(R.id.statusShow);
              statusIndicator = (LinearLayout) itemView.findViewById(R.id.statusIndicator);
 
-             doctorName = (AppCompatTextView) itemView.findViewById(R.id.tvdoctor);
-             hospitalName = (AppCompatTextView) itemView.findViewById(R.id.tvhospital);
+             patientName = (AppCompatTextView) itemView.findViewById(R.id.tvdoctor);
+             email = (AppCompatTextView) itemView.findViewById(R.id.tvhospital);
              date = (AppCompatTextView) itemView.findViewById(R.id.tvdate);
              treatment = (AppCompatTextView) itemView.findViewById(R.id.tvtreatment);
              status = (AppCompatTextView) itemView.findViewById(R.id.tvstatus);
+
              rippleView = (RippleView) itemView.findViewById(R.id.ripAppointment);
          }
      }

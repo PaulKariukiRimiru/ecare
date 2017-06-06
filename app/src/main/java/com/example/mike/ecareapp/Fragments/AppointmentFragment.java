@@ -3,7 +3,6 @@ package com.example.mike.ecareapp.Fragments;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -20,16 +18,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.mike.ecareapp.Adapter.MainAdapter;
 import com.example.mike.ecareapp.Custom.Constants;
-import com.example.mike.ecareapp.Custom.ProcessUser;
-import com.example.mike.ecareapp.Database.DatabaseHandler;
-import com.example.mike.ecareapp.Delegates.TestAdapter;
-import com.example.mike.ecareapp.Delegates.TestAdapter2;
+import com.example.mike.ecareapp.Adapter.AppointmentAdapter;
+import com.example.mike.ecareapp.Adapter.DoctorsAppointmentAdapter;
 import com.example.mike.ecareapp.Interfaces.NavigationInterface;
 import com.example.mike.ecareapp.Pojo.AppiontmentItem;
 import com.example.mike.ecareapp.Pojo.DoctorAppointmentItem;
-import com.example.mike.ecareapp.Pojo.MainObject;
 import com.example.mike.ecareapp.R;
 
 import org.json.JSONArray;
@@ -59,8 +53,8 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
 
     private OnFragmentInteractionListener mListener;
 
-    TestAdapter adapter;
-    private TestAdapter2 adapter2;
+    AppointmentAdapter adapter;
+    private DoctorsAppointmentAdapter adapter2;
 
     public AppointmentFragment() {
         // Required empty public constructor
@@ -136,6 +130,7 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
                                 appiontmentItem.setPat_id(object.getString("pat_id"));
                                 appiontmentItem.setDoc_id(object.getString("doc_id"));
                                 appiontmentItem.setStatus(object.getString("status"));
+                                mainObjectList1.add(appiontmentItem);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -143,7 +138,7 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
 
                         }
 
-                        adapter = new TestAdapter(getContext(),mainObjectList1);
+                        adapter = new AppointmentAdapter(getContext(),mainObjectList1);
 
                         recyclerView.setAdapter(adapter);
                         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
@@ -184,7 +179,7 @@ public class AppointmentFragment extends Fragment implements NavigationInterface
                             }
 
                         }
-                        adapter2 = new TestAdapter2(getContext(),mainObjectList2, AppointmentFragment.this);
+                        adapter2 = new DoctorsAppointmentAdapter(getContext(),mainObjectList2, AppointmentFragment.this);
 
                         recyclerView.setAdapter(adapter2);
                         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
